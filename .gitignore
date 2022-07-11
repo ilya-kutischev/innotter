@@ -1,2 +1,5 @@
-#.env
+.env
 .idea
+Pipfile.lock
+Pipfile
+.flake8
