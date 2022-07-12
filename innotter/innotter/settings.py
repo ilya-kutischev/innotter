@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 
@@ -35,8 +36,33 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
-    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': (
+        # 'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.AllowAny',
+    ),
+    'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        # 'knox.auth.TokenAuthentication',
+        # свой джанго бэкенд аутетификация
+        # регистрауия и логин логаут
+        # джанго лигин логаут  ВСЁ ВО ВЬЮХАХ
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+}
+
+
+# AUTHENTICATION_BACKENDS = [
+#     'django.contrib.auth.backends.ModelBackend',
+#     'users.backends.UserBackend',
+# ]
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=6),
 }
 
 # Application definition
@@ -144,3 +170,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
+}

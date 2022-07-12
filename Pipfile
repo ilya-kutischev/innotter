@@ -11,6 +11,7 @@ docker-compose = "*"
 psycopg2-binary = "*"
 gunicorn = "*"
 djangorestframework = "*"
+pyjwt = "*"
 
 [dev-packages]
 

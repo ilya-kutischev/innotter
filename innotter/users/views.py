@@ -3,11 +3,10 @@ from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
+
 
 from users.models import User
-from users.serializers import UserDetailSerializer
-
+from users.serializers import UserDetailSerializer, RegisterSerializer
 
 # read bout ViewSet and routers
 class UserViewSet(ViewSet):
@@ -20,29 +19,29 @@ class UserViewSet(ViewSet):
         serializer = UserDetailSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    # @action
-    # def retrieveUser(self, request, pk=None):
-    #     queryset = User.objects.all()
-    #     user = get_object_or_404(queryset, pk=pk)
-    #     serializer = UserDetailSerializer(user)
-    #     return Response(serializer.data)
-
     def create(self, request):
         serializer = UserDetailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
-    # @api_view(['POST'])
-    # def updateUser(self, request, pk=None):
-    #     queryset = User.objects.all()
-    #     serializer = UserDetailSerializer(queryset, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #     return Response(serializer.data)
-    #
-    # @api_view(['DELETE'])
-    # def deleteUser(self, request, pk=None):
-    #     user = get_object_or_404(User, pk=pk)
-    #     user.delete()
-    #     return Response(status=204)
+
+# Register API
+class RegisterAPIView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username, email, password = (
+            serializer.validated_data["username"],
+            serializer.validated_data["email"],
+            serializer.validated_data["password"],
+        )
+        user = User.objects.create_user(username, email, password)
+        return user
+
+        # return Response({
+        # "user": UserDetailSerializer(user, context=self.get_serializer_context()).data,
+        # "token": AuthToken.objects.create(user)[1]
+        # })
