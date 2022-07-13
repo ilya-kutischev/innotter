@@ -23,6 +23,22 @@ class UserManager(BaseUserManager):
 
         return user
 
+    def update_user(self,user, username, email, password=None):
+        """Изменяет и возвращает пользователя с имэйлом, паролем и именем."""
+        if username is None:
+            raise TypeError('Enter username.')
+
+        if email is None:
+            raise TypeError('Enter an email address.')
+        user.username = username
+        user.email = email
+        user.password = password
+        # user = self.model(username=username, email=self.normalize_email(email))
+        user.set_password(password)
+        user.save()
+
+        return user
+
     def create_superuser(self, username, email, password):
         """Создает и возввращет пользователя с привилегиями суперадмина."""
         if password is None:
@@ -48,6 +64,8 @@ class User(AbstractUser):
 
     title = models.CharField(max_length=80)
     is_blocked = models.BooleanField(default=False)
+
+    objects = UserManager()
 
     # def _generate_jwt_token(self):
     #     dt = datetime.now() + timedelta(days=1)
