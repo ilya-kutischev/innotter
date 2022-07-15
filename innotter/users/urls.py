@@ -2,6 +2,7 @@
 from django.urls import path, include
 from users.views import (
     UserViewSet,
+    # PostViewSet,
     RegisterAPIView,
     UpdateAPIView,
     DeleteAPIView,
@@ -21,4 +22,6 @@ urlpatterns = [
     path('delete/<int:pk>/', DeleteAPIView.as_view(), name='delete-items'),
     path('login/', LoginView.as_view(), name='login'),
     path('refresh/', RefreshView.as_view(), name='refresh'),
+    # тут прототип постов
+    # path('',include(DefaultRouter().register(r'posts',PostViewSet,basename='posts').urls))
 ]

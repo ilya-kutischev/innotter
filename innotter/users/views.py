@@ -3,9 +3,10 @@ from rest_framework import generics
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 
 # from django.contrib.auth.decorators import login_required
-from users.models import User
+from users.models import User, Post  # , Tag, Page
 from users.serializers import (
     UserDetailSerializer,
     RegisterSerializer,
@@ -22,6 +23,8 @@ class UserViewSet(ViewSet):
     """
     A simple ViewSet for listing or retrieving users.
     """
+
+    permission_classes = (AllowAny,)
 
     def list(self, request):
         queryset = User.objects.all()
@@ -40,9 +43,25 @@ class UserViewSet(ViewSet):
     #     return super(UserViewSet, self).destroy(request, *args, **kwargs)
 
 
+class PostViewSet(ViewSet):
+    permission_classes = (AllowAny,)
+
+    def list(self, request):
+        queryset = Post.objects.all()
+        serializer = UserDetailSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = UserDetailSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
 # Register API
 class RegisterAPIView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
+    permission_classes = IsAuthenticated or IsAdminUser
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -64,7 +83,7 @@ class RegisterAPIView(generics.GenericAPIView):
 # Update API
 class UpdateAPIView(generics.GenericAPIView):
     serializer_class = UpdateSerializer
-
+    permission_classes = IsAuthenticated or IsAdminUser
     # def update(self, request, *args, **kwargs):
     #     serializer = self.serializer_class(request.user, data=request.data, partial=True)
     #     serializer.is_valid(raise_exception=True)
@@ -93,6 +112,7 @@ class UpdateAPIView(generics.GenericAPIView):
 
 class DeleteAPIView(generics.GenericAPIView):
     serializer_class = DeleteSerializer
+    permission_classes = IsAuthenticated or IsAuthenticated
 
     def delete(self, request, *args, **kwargs):
         user = self.request.user
@@ -104,6 +124,7 @@ class DeleteAPIView(generics.GenericAPIView):
 # AUTHENTICATION ##################################
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
+    permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
         serializer = LoginSerializer(data=request.data)
@@ -116,6 +137,7 @@ class LoginView(generics.GenericAPIView):
 
 class RefreshView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
+    permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
         serializer = RefreshSerializer(data=request.data)

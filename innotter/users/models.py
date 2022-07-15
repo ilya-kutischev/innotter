@@ -1,5 +1,8 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+from datetime import datetime, timedelta
+from django.conf import settings
+import jwt
 
 
 class UserManager(BaseUserManager):
@@ -23,7 +26,7 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def update_user(self,user, username, email, password=None):
+    def update_user(self, user, username, email, password=None):
         """Изменяет и возвращает пользователя с имэйлом, паролем и именем."""
         if username is None:
             raise TypeError('Enter username.')
@@ -67,12 +70,62 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    # def _generate_jwt_token(self):
-    #     dt = datetime.now() + timedelta(days=1)
-    #
-    #     token = jwt.encode({
-    #         'id': self.pk,
-    #         'exp': int(dt.strftime('%S'))
-    #     }, settings.SECRET_KEY, algorithm='HS256')
-    #
-    #     return token
+    @property
+    def token(self):
+        """
+        Позволяет получить токен пользователя путем вызова user.token, вместо
+        user._generate_jwt_token(). Декоратор @property выше делает это
+        возможным. token называется "динамическим свойством".
+        """
+        return self._generate_jwt_token()
+
+    def _generate_jwt_token(self):
+        """
+        Генерирует веб-токен JSON, в котором хранится идентификатор этого
+        пользователя, срок действия токена составляет 1 день от создания
+        """
+        dt = datetime.now() + timedelta(days=1)
+
+        token = jwt.encode(
+            {'id': self.pk, 'exp': int(dt.strftime('%s'))},
+            settings.SECRET_KEY,
+            algorithm='HS256',
+        )
+
+        return token.decode('utf-8')
+
+
+# INTERFACE INNOTTER REALISATION
+class Tag(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+
+class Page(models.Model):
+    name = models.CharField(max_length=64)
+    uuid = models.CharField(max_length=64, unique=True)
+    description = models.TextField()
+    tags = models.ManyToManyField('users.Tag', related_name='pages')
+
+    owner = models.ForeignKey(
+        'users.User', on_delete=models.CASCADE, related_name='pages'
+    )
+    followers = models.ManyToManyField('users.User', related_name='follows')
+
+    image = models.URLField(null=True, blank=True)
+
+    is_private = models.BooleanField(default=False)
+    follow_requests = models.ManyToManyField('users.User', related_name='requests')
+
+    unblock_date = models.DateTimeField(null=True, blank=True)
+
+
+class Post(models.Model):
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
+    content = models.CharField(max_length=256)
+
+    reply_to = models.ForeignKey(
+        'users.Post', on_delete=models.SET_NULL, null=True, related_name='replies'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

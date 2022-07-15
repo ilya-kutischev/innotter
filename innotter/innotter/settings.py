@@ -17,14 +17,7 @@ import datetime
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -32,25 +25,29 @@ DEBUG = int(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
-
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': (
-        # 'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',
         'rest_framework.permissions.AllowAny',
     ),
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-        # 'knox.auth.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        # НАША КАСТОМНАЯ АУТЕНТИФИКАЦИЯ
+        'authentication.backends.JWTAuthentication',
         # свой джанго бэкенд аутетификация
         # регистрауия и логин логаут
         # джанго лигин логаут  ВСЁ ВО ВЬЮХАХ
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    # ТУТ МЫ ЛОВИМ ОЩИБКИ
+    'EXCEPTION_HANDLER': 'project.exceptions.core_exception_handler',
+    'NON_FIELD_ERRORS_KEY': 'error',
 }
 
 
@@ -77,6 +74,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'users',
+    'innotter',
 ]
 
 MIDDLEWARE = [
@@ -199,5 +197,5 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 }
 
 JWT_SECRET = 'my_secret'  # секретное слово для подписи
-JWT_ACCESS_TTL = 60 * 5  # время жизни access токена в секундах (5 мин)
+JWT_ACCESS_TTL = 60 * 60 * 60  # время жизни access токена в секундах (5 мин)
 JWT_REFRESH_TTL = 3600 * 24 * 7  # время жизни refresh токена в секундах (неделя)
