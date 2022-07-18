@@ -2,7 +2,7 @@ from rest_framework import status
 from authentication.renderers import UserJSONRenderer
 from users.serializers import LoginSerializer, UserSerializer  # , RegisterSerializer
 from rest_framework import generics
-from rest_framework.permissions import AllowAny, IsAuthenticated  # , IsAdminUser
+from rest_framework.permissions import IsAuthenticated  # , IsAdminUser, AllowAny,
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveUpdateAPIView
 
@@ -10,16 +10,13 @@ renderer_classes = (UserJSONRenderer,)
 
 
 class LoginAPIView(generics.GenericAPIView):
-    permission_classes = (AllowAny,)
+    # permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
     def post(self, request):
         user = request.data.get('user', {})
 
-        # Обратите внимание, что мы не вызываем метод save() сериализатора, как
-        # делали это для регистрации. Дело в том, что в данном случае нам
-        # нечего сохранять. Вместо этого, метод validate() делает все нужное.
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
 

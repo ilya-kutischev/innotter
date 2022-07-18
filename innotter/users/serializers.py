@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User
+from users.models import User, Page
 from datetime import datetime, timedelta
 import jwt
 from django.contrib.auth import get_user_model
@@ -201,3 +201,26 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+# PAGES!!!!!!!!!!!!!!!!!
+class PageDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = "__all__"
+
+
+class CreatePageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = (
+            'name',
+            'uuid',
+            'description',
+            'owner',
+            'followers',
+            'image',
+            'is_private',
+            'follow_requests',
+            'unblock_date',
+        )

@@ -3,10 +3,15 @@ from rest_framework import generics
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import (
+    AllowAny,
+    IsAuthenticated,
+    IsAdminUser,
+    # IsAuthenticatedOrReadOnly,
+)
 
 # from django.contrib.auth.decorators import login_required
-from users.models import User, Post  # , Tag, Page
+from users.models import User, Page  # , Tag, Page
 from users.serializers import (
     UserDetailSerializer,
     RegisterSerializer,
@@ -14,16 +19,13 @@ from users.serializers import (
     DeleteSerializer,
     LoginSerializer,
     RefreshSerializer,
+    PageDetailSerializer,
+    CreatePageSerializer,
 )
 from rest_framework import status
 
 
-# read bout ViewSet and routers
 class UserViewSet(ViewSet):
-    """
-    A simple ViewSet for listing or retrieving users.
-    """
-
     permission_classes = (AllowAny,)
 
     def list(self, request):
@@ -43,25 +45,10 @@ class UserViewSet(ViewSet):
     #     return super(UserViewSet, self).destroy(request, *args, **kwargs)
 
 
-class PostViewSet(ViewSet):
-    permission_classes = (AllowAny,)
-
-    def list(self, request):
-        queryset = Post.objects.all()
-        serializer = UserDetailSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-    def create(self, request):
-        serializer = UserDetailSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-
 # Register API
 class RegisterAPIView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
-    permission_classes = IsAuthenticated or IsAdminUser
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -112,7 +99,7 @@ class UpdateAPIView(generics.GenericAPIView):
 
 class DeleteAPIView(generics.GenericAPIView):
     serializer_class = DeleteSerializer
-    permission_classes = IsAuthenticated or IsAuthenticated
+    permission_classes = IsAuthenticated
 
     def delete(self, request, *args, **kwargs):
         user = self.request.user
@@ -146,3 +133,61 @@ class RefreshView(generics.GenericAPIView):
             return Response(response_data)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PageViewSet(ViewSet):
+    permission_classes = (AllowAny,)
+
+    def list(self, request):
+        queryset = Page.objects.all()
+        serializer = PageDetailSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = CreatePageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+
+class CreatePageView(generics.GenericAPIView):
+    serializer_class = CreatePageSerializer
+    # permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        (
+            name,
+            uuid,
+            description,
+            owner,
+            followers,
+            image,
+            is_private,
+            follow_requests,
+            unblock_date,
+        ) = (
+            serializer.validated_data["name"],
+            serializer.validated_data["uuid"],
+            serializer.validated_data["description"],
+            serializer.validated_data["owner"],
+            serializer.validated_data["followers"],
+            serializer.validated_data["image"],
+            serializer.validated_data["is_private"],
+            serializer.validated_data["unblock_date"],
+            serializer.validated_data["follow_requests"],
+        )
+        page = Page.objects.create_page(
+            name,
+            uuid,
+            description,
+            owner,
+            followers,
+            image,
+            is_private,
+            follow_requests,
+            unblock_date,
+        )
+
+        return Response(UserDetailSerializer(page).data)

@@ -2,18 +2,23 @@
 from django.urls import path, include
 from users.views import (
     UserViewSet,
-    # PostViewSet,
     RegisterAPIView,
     UpdateAPIView,
     DeleteAPIView,
     LoginView,
     RefreshView,
+    PageViewSet,
+    CreatePageView,
 )
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 urlpatterns = router.urls
+
+new_router = DefaultRouter()
+new_router.register(r'posts', PageViewSet, basename='page')
+
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -22,6 +27,7 @@ urlpatterns = [
     path('delete/<int:pk>/', DeleteAPIView.as_view(), name='delete-items'),
     path('login/', LoginView.as_view(), name='login'),
     path('refresh/', RefreshView.as_view(), name='refresh'),
-    # тут прототип постов
-    # path('',include(DefaultRouter().register(r'posts',PostViewSet,basename='posts').urls))
+    # тут прототип ПЭЙДЖОВ
+    path('', include(new_router.urls)),
+    path('posts/create/', CreatePageView.as_view(), name='login'),
 ]

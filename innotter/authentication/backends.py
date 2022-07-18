@@ -1,9 +1,10 @@
 import jwt
 
-from django.conf import settings
+# from django.conf import settings
 
 from rest_framework import authentication, exceptions
 
+from innotter.settings import JWT_SECRET
 from users.models import User
 
 
@@ -11,20 +12,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
     authentication_header_prefix = 'Token'
 
     def authenticate(self, request):
-        """
-        Метод authenticate вызывается каждый раз, независимо от того, требует
-        ли того эндпоинт аутентификации. 'authenticate' имеет два возможных
-        возвращаемых значения:
-            1) None - мы возвращаем None если не хотим аутентифицироваться.
-            Обычно это означает, что мы значем, что аутентификация не удастся.
-            Примером этого является, например, случай, когда токен не включен в
-            заголовок.
-            2) (user, token) - мы возвращаем комбинацию пользователь/токен
-            тогда, когда аутентификация пройдена успешно. Если ни один из
-            случаев не соблюден, это означает, что произошла ошибка, и мы
-            ничего не возвращаем. В таком случае мы просто вызовем исключение
-            AuthenticationFailed и позволим DRF сделать все остальное.
-        """
+
         request.user = None
 
         # 'auth_header' должен быть массивом с двумя элементами:
@@ -66,7 +54,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         вернуть пользователя и токен, иначе - сгенерировать исключение.
         """
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY)
+            payload = jwt.decode(token, JWT_SECRET, algorithms='HS256')
         except Exception:
             msg = 'Ошибка аутентификации. Невозможно декодировать токен.'
             raise exceptions.AuthenticationFailed(msg)
