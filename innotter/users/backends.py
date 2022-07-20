@@ -1,8 +1,6 @@
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 
-# from users.models import User
-
 
 class UserBackend(ModelBackend):
     def authenticate(self, request, **kwargs):

@@ -9,12 +9,12 @@ services:
     env_file:
       - ./.env
     depends_on:
-      - db
+      - postgres
 
 
-  db:
+  postgres:
     ports:
-      - 5432:5432
+      - "5432:5432"
     image: postgres:12.0-alpine
     volumes:
       - "/var/lib/postgresql/data/"

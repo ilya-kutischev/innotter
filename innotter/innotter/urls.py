@@ -6,4 +6,5 @@ urlpatterns = [
     path('', include('users.urls')),
     path('auth/', include('authentication.urls', namespace='authentication')),
     # path('api-auth/', include('rest_framework.urls')),
+    path('pages/', include('pages.urls'), namespace='pages'),
 ]

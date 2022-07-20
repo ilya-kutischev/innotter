@@ -1,5 +1,9 @@
 .env
 .idea
-Pipfile.lock
-Pipfile
 .flake8
+.diff
+innotter/static
+innotter/__pycache__
+innotter/users/__pycache__
+#innotter/users/migrations
+innotter/innotter/__pycache__

@@ -1,13 +1,5 @@
 #!/bin/bash
 
-#until nc -z -v -w30 $SQL_HOST $SQL_PORT
-#do
-#    echo "Waiting for a database..."
-#    sleep 0.5
-#done
-
-
-
 set -e
 
 if [ "$DATABASE" = "PGSQL" ]; then

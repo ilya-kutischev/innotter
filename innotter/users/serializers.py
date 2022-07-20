@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from users.models import User, Page
+from users.models import User
 from datetime import datetime, timedelta
 import jwt
-from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from innotter.settings import JWT_SECRET, JWT_ACCESS_TTL, JWT_REFRESH_TTL
 
@@ -43,21 +42,17 @@ class DeleteSerializer(serializers.ModelSerializer):
         return User.objects.delete_user(**validated_data)
 
 
-# Authentification!
-
-UserModel = get_user_model()
+UserModel = User
 
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # fields = ('__all__')
         fields = ('email', 'password', 'refresh', 'access')
 
-    # ==== INPUT ====
     email = serializers.EmailField(required=True, write_only=True)
     password = serializers.CharField(required=True, write_only=True)
-    # ==== OUTPUT ====
+
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
 
@@ -100,9 +95,9 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class RefreshSerializer(serializers.ModelSerializer):
-    # ==== INPUT ====
+
     refresh_token = serializers.CharField(required=True, write_only=True)
-    # ==== OUTPUT ====
+
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
 
@@ -153,11 +148,7 @@ class RefreshSerializer(serializers.ModelSerializer):
 
 # СЕРИАЛИЗАТОР ПРИ АУТЕНТИФИКАЦИИ
 class UserSerializer(serializers.ModelSerializer):
-    """Ощуществляет сериализацию и десериализацию объектов User."""
 
-    # Пароль должен содержать от 8 до 128 символов. Это стандартное правило. Мы
-    # могли бы переопределить это по-своему, но это создаст лишнюю работу для
-    # нас, не добавляя реальных преимуществ, потому оставим все как есть.
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
 
     class Meta:
@@ -168,59 +159,18 @@ class UserSerializer(serializers.ModelSerializer):
             'password',
             'token',
         )
-
-        # Параметр read_only_fields является альтернативой явному указанию поля
-        # с помощью read_only = True, как мы это делали для пароля выше.
-        # Причина, по которой мы хотим использовать здесь 'read_only_fields'
-        # состоит в том, что нам не нужно ничего указывать о поле. В поле
-        # пароля требуются свойства min_length и max_length,
-        # но это не относится к полю токена.
         read_only_fields = ('token',)
 
     def update(self, instance, validated_data):
-        """Выполняет обновление User."""
 
-        # В отличие от других полей, пароли не следует обрабатывать с помощью
-        # setattr. Django предоставляет функцию, которая обрабатывает пароли
-        # хешированием и 'солением'. Это означает, что нам нужно удалить поле
-        # пароля из словаря 'validated_data' перед его использованием далее.
         password = validated_data.pop('password', None)
 
         for key, value in validated_data.items():
-            # Для ключей, оставшихся в validated_data мы устанавливаем значения
-            # в текущий экземпляр User по одному.
             setattr(instance, key, value)
 
         if password is not None:
-            # 'set_password()' решает все вопросы, связанные с безопасностью
-            # при обновлении пароля, потому нам не нужно беспокоиться об этом.
             instance.set_password(password)
 
-        # После того, как все было обновлено, мы должны сохранить наш экземпляр
-        # User. Стоит отметить, что set_password() не сохраняет модель.
         instance.save()
 
         return instance
-
-
-# PAGES!!!!!!!!!!!!!!!!!
-class PageDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Page
-        fields = "__all__"
-
-
-class CreatePageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Page
-        fields = (
-            'name',
-            'uuid',
-            'description',
-            'owner',
-            'followers',
-            'image',
-            'is_private',
-            'follow_requests',
-            'unblock_date',
-        )
