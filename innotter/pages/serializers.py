@@ -15,10 +15,13 @@ class CreatePageSerializer(serializers.ModelSerializer):
             'name',
             'uuid',
             'description',
-            'owner',
+            # 'owner',
             'followers',
             'image',
             'is_private',
             'follow_requests',
             'unblock_date',
         )
+
+    def create(self, validated_data):
+        return Page.objects.create_page(**validated_data)

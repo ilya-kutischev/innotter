@@ -2,15 +2,36 @@ from rest_framework import status
 from authentication.renderers import UserJSONRenderer
 from users.serializers import LoginSerializer, UserSerializer  # , RegisterSerializer
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated  # , IsAdminUser, AllowAny,
+from rest_framework.permissions import IsAuthenticated, AllowAny  # , IsAdminUser, AllowAny,
 from rest_framework.response import Response
 from rest_framework.generics import RetrieveUpdateAPIView
+from users.models import User
+from users.serializers import UserDetailSerializer
+from rest_framework.viewsets import ViewSet
 
 renderer_classes = (UserJSONRenderer,)
 
 
+class AuthUserViewSet(ViewSet):
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request):
+        queryset = User.objects.filter(pk=request.user.pk)
+        serializer = UserDetailSerializer(queryset, many=True)  # many=True
+        return Response(serializer.data)
+
+
+class UserViewSet(ViewSet):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        queryset = User.objects.all()
+        serializer = UserDetailSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 class LoginAPIView(generics.GenericAPIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = IsAuthenticated
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
@@ -36,7 +57,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         serializer_data = request.data.get('user', {})
-        # Паттерн сериализации, валидирования и сохранения
+
         serializer = self.serializer_class(
             request.user, data=serializer_data, partial=True
         )

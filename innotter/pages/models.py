@@ -7,8 +7,7 @@ class Tag(models.Model):
 
 
 class PageManager(BaseUserManager):
-    def create_page(self, name, uuid, description, image, is_private):
-        """Создает и возвращает пользователя с имэйлом, паролем и именем."""
+    def create_page(self, name,owner, uuid, description='', image='', is_private=False):
         if name is None:
             raise TypeError('Pages must have a name.')
         if uuid is None:
@@ -16,6 +15,7 @@ class PageManager(BaseUserManager):
 
         page = self.model(
             name=name,
+            owner=owner,
             uuid=uuid,
             description=description,
             image=image,
@@ -33,7 +33,7 @@ class Page(models.Model):
     # tags = models.ManyToManyField('users.Tag', related_name='pages')
 
     owner = models.ForeignKey(
-        'users.User', on_delete=models.CASCADE, related_name='pages'
+        'users.User', on_delete=models.CASCADE, related_name='user_id'
     )
     followers = models.ManyToManyField(
         'users.User', related_name='follows', null=True, blank=True
@@ -56,7 +56,7 @@ class Post(models.Model):
     content = models.CharField(max_length=256)
 
     reply_to = models.ForeignKey(
-        'users.Post', on_delete=models.SET_NULL, null=True, related_name='replies'
+        'users.User', on_delete=models.SET_NULL, null=True, related_name='replies'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

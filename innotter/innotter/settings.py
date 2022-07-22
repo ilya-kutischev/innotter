@@ -8,14 +8,12 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = int(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAdminUser',
         'rest_framework.permissions.IsAuthenticated',
@@ -26,11 +24,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        # НАША КАСТОМНАЯ АУТЕНТИФИКАЦИЯ
         'authentication.backends.JWTAuthentication',
-        # свой джанго бэкенд аутетификация
-        # регистрауия и логин логаут
-        # джанго лигин логаут  ВСЁ ВО ВЬЮХАХ
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
@@ -49,27 +43,30 @@ JWT_AUTH = {
 }
 
 
-# Application definition
 
 INSTALLED_APPS = [
+
+
+    'users',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'users',
     'innotter',
-    "authentication",
     "pages",
+    "authentication",
+
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -92,7 +89,7 @@ TEMPLATES = [
         },
     },
 ]
-ROOT_URLCONF = 'innotter.urls'
+
 
 TEMPLATES = [
     {
@@ -117,7 +114,7 @@ WSGI_APPLICATION = 'innotter.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "NAME": 'hello_django_dev',
         "USER": os.environ.get("SQL_USER", "user"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
         "HOST": os.environ.get("SQL_HOST", "localhost"),
@@ -157,7 +154,7 @@ STATIC_URL = '/static/'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# TOKEN CONSTANTS
+
 
 AUTH_USER_MODEL = 'users.User'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
@@ -170,6 +167,9 @@ REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'users.serializers.CustomRegisterSerializer',
 }
 
-JWT_SECRET = 'my_secret'  # секретное слово для подписи
-JWT_ACCESS_TTL = 60 * 60 * 60  # время жизни access токена в секундах (5 мин)
-JWT_REFRESH_TTL = 3600 * 24 * 7  # время жизни refresh токена в секундах (неделя)
+JWT_SECRET = 'my_secret'
+JWT_ACCESS_TTL = 60 * 60 * 60
+JWT_REFRESH_TTL = 3600 * 24 * 7
+
+CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_HTTPONLY = False

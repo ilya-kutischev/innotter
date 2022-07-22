@@ -1,12 +1,18 @@
-from django.urls import path
-from users.views import RegisterAPIView
-from authentication.views import LoginAPIView, UserRetrieveUpdateAPIView
+from django.urls import path, include
 
-# ТУТ УРЛЫ ДЛЯ АУТЕНТИФИКАЦИИ
+from authentication.views import LoginAPIView, AuthUserViewSet, UserRetrieveUpdateAPIView, UserViewSet
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'', UserViewSet, basename='')
+
+auth_router = DefaultRouter()
+auth_router.register(r'', AuthUserViewSet, basename='my_profile')
 
 app_name = 'authentication'
 urlpatterns = [
     path('user', UserRetrieveUpdateAPIView.as_view()),
-    path('users/', RegisterAPIView.as_view()),
+    path('users/', include(router.urls)),
+    path('my_profile/', include(auth_router.urls)),
     path('users/login/', LoginAPIView.as_view()),
 ]
