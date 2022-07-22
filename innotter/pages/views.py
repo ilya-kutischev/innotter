@@ -1,11 +1,10 @@
-from rest_framework import generics
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import (
-    AllowAny,
     IsAuthenticated,
 )
-from pages.models import Page  # , Tag, Post
+from authentication.backends import JWTAuthentication
+from pages.models import Page
 from pages.serializers import (
     PageDetailSerializer,
     CreatePageSerializer,
@@ -13,7 +12,7 @@ from pages.serializers import (
 
 
 class PageViewSet(ViewSet):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         queryset = Page.objects.all()
@@ -27,44 +26,47 @@ class PageViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class CreatePageView(generics.GenericAPIView):
+class CreatePageView(ViewSet):
+    authentication_classes = (JWTAuthentication,)
     serializer_class = CreatePageSerializer
-    permission_classes = IsAuthenticated
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    def create(self, request):
+        serializer = CreatePageSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)  # true
         (
             name,
             uuid,
-            description,
-            owner,
-            followers,
-            image,
-            is_private,
-            follow_requests,
-            unblock_date,
+            # description,
+            # owner,
+            # followers,
+            # image,
+            # is_private,
+            # follow_requests,
+            # unblock_date,
         ) = (
             serializer.validated_data["name"],
             serializer.validated_data["uuid"],
-            serializer.validated_data["description"],
-            serializer.validated_data["owner"],
-            serializer.validated_data["followers"],
-            serializer.validated_data["image"],
-            serializer.validated_data["is_private"],
-            serializer.validated_data["unblock_date"],
-            serializer.validated_data["follow_requests"],
+            # serializer.validated_data["description"],
+            # serializer.validated_data["owner"],
+            # serializer.validated_data["followers"],
+            # serializer.validated_data["image"],
+            # serializer.validated_data["is_private"],
+            # serializer.validated_data["unblock_date"],
+            # serializer.validated_data["follow_requests"],
         )
         page = Page.objects.create_page(
             name,
+
+            # description,
+            # owner,
+            request.user,
             uuid,
-            description,
-            owner,
-            followers,
-            image,
-            is_private,
-            follow_requests,
-            unblock_date,
+            # followers,
+            # image,
+            # is_private,
+            # follow_requests,
+            # unblock_date,
         )
 
         return Response(PageDetailSerializer(page).data)

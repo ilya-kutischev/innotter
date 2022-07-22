@@ -4,12 +4,15 @@ from pages.views import (
     PageViewSet,
     CreatePageView,
 )
+router = DefaultRouter()
+router.register(r'create', CreatePageView, basename='create')
+
 
 new_router = DefaultRouter()
-new_router.register(r'pages', PageViewSet, basename='page')
+new_router.register(r'', PageViewSet, basename='page')
 
 
 urlpatterns = [
     path('', include(new_router.urls)),
-    path('create/', CreatePageView.as_view(), name='create-page'),
+    path('', include(router.urls)),
 ]

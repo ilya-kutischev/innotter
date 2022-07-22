@@ -34,15 +34,10 @@ class UserViewSet(ViewSet):
         return Response(serializer.data)
 
 
-# Register API
 class RegisterAPIView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
-    # permission_classes = IsAuthenticated or AllowAny
 
     def post(self, request, *args, **kwargs):
-
-        print("name = ", request.user.username)
-
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
@@ -69,7 +64,6 @@ class UpdateAPIView(generics.GenericAPIView):
         )
         user = get_object_or_404(User, pk=pk)
         user = User.objects.update_user(user, username, email, password)
-        # return user
         return Response(UpdateSerializer(user).data)
 
 
@@ -80,11 +74,10 @@ class DeleteAPIView(generics.GenericAPIView):
     def delete(self, request, *args, **kwargs):
         user = self.request.user
         user.delete()
-        # ВНИМАНИЕ тут надо сделать вместо этой хуйни isblocked=true
+        #To do: IsBlocked = true After delete
         return Response({"result": "user deleted"})
 
 
-# AUTHENTICATION ##################################
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
