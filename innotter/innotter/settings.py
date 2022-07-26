@@ -45,9 +45,7 @@ JWT_AUTH = {
 
 
 INSTALLED_APPS = [
-
-
-    'users',
+    "users",
     'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -55,10 +53,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'innotter',
+    "innotter",
     "pages",
     "authentication",
-
+    "posts",
 
 ]
 
@@ -168,8 +166,8 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 }
 
 JWT_SECRET = 'my_secret'
-JWT_ACCESS_TTL = 60 * 60 * 60
-JWT_REFRESH_TTL = 3600 * 24 * 7
+JWT_ACCESS_TTL = 60 * 60 * 60 * 60 * 60
+JWT_REFRESH_TTL = 3600 * 24 * 7* 1000 * 24 * 7
 
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False

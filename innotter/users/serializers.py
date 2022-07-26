@@ -57,10 +57,8 @@ class LoginSerializer(serializers.ModelSerializer):
     refresh = serializers.CharField(read_only=True)
 
     def validate(self, attrs):
-        # standard validation
         validated_data = super().validate(attrs)
 
-        # validate email and password
         email = validated_data['email']
         password = validated_data['password']
         error_msg = _('email or password are incorrect')
@@ -106,7 +104,6 @@ class RefreshSerializer(serializers.ModelSerializer):
         fields = 'refresh_token'
 
     def validate(self, attrs):
-        # standard validation
         validated_data = super().validate(attrs)
 
         # validate refresh
@@ -146,7 +143,6 @@ class RefreshSerializer(serializers.ModelSerializer):
         return {'access': access, 'refresh': refresh}
 
 
-# СЕРИАЛИЗАТОР ПРИ АУТЕНТИФИКАЦИИ
 class UserSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
