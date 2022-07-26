@@ -8,6 +8,9 @@ django = "*"
 python-dotenv = "*"
 docker = "*"
 docker-compose = "*"
+psycopg2-binary = "*"
+djangorestframework = "*"
+pyjwt = "*"
 
 [dev-packages]
 

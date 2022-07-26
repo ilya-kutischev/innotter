@@ -1,0 +1,9 @@
+.env
+.idea
+.flake8
+.diff
+innotter/static
+innotter/__pycache__
+innotter/users/__pycache__
+#innotter/users/migrations
+innotter/innotter/__pycache__
