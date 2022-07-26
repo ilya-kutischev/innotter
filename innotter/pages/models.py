@@ -2,10 +2,6 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager
 
 
-class Tag(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-
-
 class PageManager(BaseUserManager):
     def create_page(self, name,owner, uuid, description='', image='', is_private=False):
         if name is None:
@@ -28,7 +24,7 @@ class PageManager(BaseUserManager):
 
 class Page(models.Model):
     name = models.CharField(max_length=64)
-    uuid = models.CharField(max_length=64, unique=True)
+    uuid = models.CharField(max_length=64,primary_key=True, unique=True)
     description = models.TextField(null=True, blank=True)
     # tags = models.ManyToManyField('users.Tag', related_name='pages')
 
@@ -50,14 +46,3 @@ class Page(models.Model):
 
     objects = PageManager()
 
-
-class Post(models.Model):
-    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
-    content = models.CharField(max_length=256)
-
-    reply_to = models.ForeignKey(
-        'users.User', on_delete=models.SET_NULL, null=True, related_name='replies'
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)

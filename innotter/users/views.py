@@ -49,7 +49,6 @@ class RegisterAPIView(generics.GenericAPIView):
         return Response(UserDetailSerializer(user).data)
 
 
-# Update API
 class UpdateAPIView(generics.GenericAPIView):
     serializer_class = UpdateSerializer
     permission_classes = IsAuthenticated or IsAdminUser
@@ -82,7 +81,7 @@ class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = (AllowAny,)
 
-    def post(self, request, format=None):
+    def post(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()
@@ -95,7 +94,7 @@ class RefreshView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = (AllowAny,)
 
-    def post(self, request, format=None):
+    def post(self, request):
         serializer = RefreshSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()

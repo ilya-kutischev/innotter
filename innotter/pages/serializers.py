@@ -15,7 +15,6 @@ class CreatePageSerializer(serializers.ModelSerializer):
             'name',
             'uuid',
             'description',
-            # 'owner',
             'followers',
             'image',
             'is_private',
