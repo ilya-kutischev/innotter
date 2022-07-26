@@ -5,5 +5,9 @@
 innotter/static
 innotter/__pycache__
 innotter/users/__pycache__
-#innotter/users/migrations
+innotter/users/migrations
+innotter/posts/migrations
+innotter/pages/migrations
+innotter/migrations
 innotter/innotter/__pycache__
+
