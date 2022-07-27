@@ -6,12 +6,16 @@ from posts.views import (
     CreatePostApi,
     PostsViewSet,
     MyPostsViewSet,
+    UpdatePostViewSet,
+    DeletePostViewSet,
 )
 
 router = DefaultRouter()
 router.register(r'create', CreatePostApi, basename='create')
-router.register(r'', PostsViewSet, basename)
-router.register(r'my_posts', MyPostsViewSet, basename)
+router.register(r'', PostsViewSet, basename='posts')
+router.register(r'my_posts', MyPostsViewSet, basename='my_posts')
+router.register(r'update', UpdatePostViewSet, basename='update')
+router.register(r'delete', DeletePostViewSet, basename='delete')
 
 urlpatterns = [
     path('<int:page>/posts/', include(router.urls)),  # page = uuid, pk of the pages

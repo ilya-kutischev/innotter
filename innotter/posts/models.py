@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db import models
 from pages.models import Page
 
@@ -15,10 +16,15 @@ class PostManager(models.Manager):
             content=content,
             page=page,
             reply_to=reply_to,
-
         )
         post.save()
 
+        return post
+
+    def update_post(self, post, content):
+        post.content = content
+        post.updated_at = datetime.now()
+        post.save()
         return post
 
 

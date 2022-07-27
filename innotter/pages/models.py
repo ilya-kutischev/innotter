@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager
+from datetime import datetime
 
 
 class PageManager(BaseUserManager):
@@ -19,6 +20,22 @@ class PageManager(BaseUserManager):
         )
         page.save()
 
+        return page
+
+    def update_page(self, page, name, description='', image='', is_private=False):
+        if name is None:
+            raise TypeError('Pages must have a name.')
+        page.name = name
+        page.description = description
+        page.image = image
+        page.is_private = is_private
+        page.save()
+
+        return page
+
+    def delete_page(self, page):
+        page.unblock_date = datetime.max
+        page.save()
         return page
 
 

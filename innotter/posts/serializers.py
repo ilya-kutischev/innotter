@@ -17,3 +17,13 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Post.objects.create_post(**validated_data)
+
+
+class UpdatePostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields =(
+            "content",
+        )
+    def update(self, validated_data):
+        return Post.objects.update_post(**validated_data)
