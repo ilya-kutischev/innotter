@@ -1,3 +1,5 @@
+from rest_framework import status
+from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import (
@@ -7,7 +9,8 @@ from rest_framework.permissions import (
 from authentication.backends import JWTAuthentication
 from posts.serializers import (
 CreatePostSerializer,
-PostDetailSerializer
+PostDetailSerializer,
+UpdatePostSerializer,
 )
 from posts.models import Post
 from pages.models import Page
@@ -47,3 +50,30 @@ class CreatePostApi(ViewSet):
         page = Page.objects.get(uuid=page)
         post = Post.objects.create_post(content, page, reply_to)
         return Response(CreatePostSerializer(post).data)
+
+
+class UpdatePostViewSet(ViewSet):
+    authentication_classes = (JWTAuthentication,)
+    serializer_class = UpdatePostSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def update(self, request, *args, **kwargs):
+        serializer = UpdatePostSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        content = serializer.validated_data['content']
+        post = get_object_or_404(Post, id=kwargs["pk"])
+        post = Post.objects.update_post(post, content)
+        return Response(UpdatePostSerializer(post).data)
+
+
+class DeletePostViewSet(ViewSet):
+    authentication_classes = (JWTAuthentication,)
+    serializer_class = UpdatePostSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def destroy(self, *args, **kwargs):
+        post = get_object_or_404(Post, id=kwargs["pk"])
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
