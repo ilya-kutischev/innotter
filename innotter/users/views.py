@@ -1,4 +1,3 @@
-from rest_framework import generics
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -8,6 +7,8 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 from users.models import User
+from users.permissions import IsUserBlocked, IsUserActiveAndNotBlocked, IsUserActiveAndNotBlockedByToken, \
+    IsOwnerByToken
 from users.serializers import (
     UserDetailSerializer,
     RegisterSerializer,
@@ -20,7 +21,7 @@ from rest_framework import status
 
 
 class UserViewSet(ViewSet):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAdminUser,)
 
     def list(self, request):
         queryset = User.objects.all()
@@ -34,11 +35,12 @@ class UserViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class RegisterAPIView(generics.GenericAPIView):
+class RegisterViewSet(ViewSet):
     serializer_class = RegisterSerializer
+    permission_classes = (AllowAny,)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+    def create(self, request, *args, **kwargs):
+        serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
             serializer.validated_data["username"],
@@ -49,12 +51,12 @@ class RegisterAPIView(generics.GenericAPIView):
         return Response(UserDetailSerializer(user).data)
 
 
-class UpdateAPIView(generics.GenericAPIView):
+class UpdateViewSet(ViewSet):
     serializer_class = UpdateSerializer
-    permission_classes = IsAuthenticated or IsAdminUser
+    permission_classes = (IsUserActiveAndNotBlockedByToken, IsOwnerByToken | IsAdminUser,)
 
-    def put(self, request, pk, *args, **kwargs):
-        serializer = self.get_serializer(data=request.POST)
+    def update(self, request, pk, *args, **kwargs):
+        serializer = UpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
             serializer.validated_data["username"],
@@ -66,35 +68,35 @@ class UpdateAPIView(generics.GenericAPIView):
         return Response(UpdateSerializer(user).data)
 
 
-class DeleteAPIView(generics.GenericAPIView):
+class DeleteViewSet(ViewSet):
     serializer_class = DeleteSerializer
-    permission_classes = IsAuthenticated
+    permission_classes = (IsAuthenticated, IsOwnerByToken | IsAdminUser)
 
-    def delete(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         user = self.request.user
-        user.delete()
-        #To do: IsBlocked = true After delete
+        user.is_active = False
+        user.is_blocked = True
+        user.save()
         return Response({"result": "user deleted"})
 
 
-class LoginView(generics.GenericAPIView):
+class LoginView(ViewSet):
     serializer_class = LoginSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsUserActiveAndNotBlocked,)
 
-    def post(self, request):
+    def create(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()
             return Response(response_data)
-
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RefreshView(generics.GenericAPIView):
+class RefreshView(ViewSet):
     serializer_class = RegisterSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (IsUserActiveAndNotBlocked,)
 
-    def post(self, request):
+    def create(self, request):
         serializer = RefreshSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()
