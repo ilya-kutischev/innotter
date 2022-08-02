@@ -18,6 +18,7 @@ class PageManager(BaseUserManager):
             image=image,
             is_private=is_private,
         )
+        page.unblock_date = datetime.now()
         page.save()
 
         return page
@@ -30,11 +31,15 @@ class PageManager(BaseUserManager):
         page.image = image
         page.is_private = is_private
         page.save()
-
         return page
 
     def delete_page(self, page):
         page.unblock_date = datetime.max
+        page.save()
+        return page
+
+    def block_page(self, page, unblock_date):
+        page.unblock_date = unblock_date
         page.save()
         return page
 

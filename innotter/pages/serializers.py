@@ -49,3 +49,14 @@ class DeletePageSerializer(serializers.ModelSerializer):
 
     def delete(self, validated_data):
         return Page.objects.delete_page(**validated_data)
+
+
+class BlockPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = (
+            'uuid',
+            'unblock_date',
+        )
+    def update(self, validated_data):
+        return Page.objects.delete_page(**validated_data)
