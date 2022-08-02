@@ -15,7 +15,6 @@ class CreatePageSerializer(serializers.ModelSerializer):
             'name',
             'uuid',
             'description',
-            # 'owner',
             'followers',
             'image',
             'is_private',
@@ -25,3 +24,28 @@ class CreatePageSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Page.objects.create_page(**validated_data)
+
+
+class UpdatePageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = (
+            'name',
+            'description',
+            'image',
+            'is_private',
+        )
+
+    def update(self, validated_data):
+        return Page.objects.update_page(**validated_data)
+
+
+class DeletePageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields=(
+
+        )
+
+    def delete(self, validated_data):
+        return Page.objects.delete_page(**validated_data)

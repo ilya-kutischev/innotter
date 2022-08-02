@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=64, unique=True)
+from datetime import datetime
 
 
 class PageManager(BaseUserManager):
@@ -25,10 +22,26 @@ class PageManager(BaseUserManager):
 
         return page
 
+    def update_page(self, page, name, description='', image='', is_private=False):
+        if name is None:
+            raise TypeError('Pages must have a name.')
+        page.name = name
+        page.description = description
+        page.image = image
+        page.is_private = is_private
+        page.save()
+
+        return page
+
+    def delete_page(self, page):
+        page.unblock_date = datetime.max
+        page.save()
+        return page
+
 
 class Page(models.Model):
     name = models.CharField(max_length=64)
-    uuid = models.CharField(max_length=64, unique=True)
+    uuid = models.CharField(max_length=64,primary_key=True, unique=True)
     description = models.TextField(null=True, blank=True)
     # tags = models.ManyToManyField('users.Tag', related_name='pages')
 
@@ -50,14 +63,3 @@ class Page(models.Model):
 
     objects = PageManager()
 
-
-class Post(models.Model):
-    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
-    content = models.CharField(max_length=256)
-
-    reply_to = models.ForeignKey(
-        'users.User', on_delete=models.SET_NULL, null=True, related_name='replies'
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
