@@ -1,22 +1,19 @@
 from django.urls import path, include
-from users.views import (
-    UserViewSet,
-    RegisterViewSet,
-    UpdateViewSet,
-    DeleteViewSet,
-    LoginView,
-    RefreshView,
-)
+
+from authentication.views import LoginViewSet, AuthUserViewSet, UserRetrieveUpdateAPIView, UserViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='user')
-router.register(r'register', RegisterViewSet, basename='register')
-router.register(r'login', LoginView, basename='login')
-router.register(r'refresh', RefreshView, basename='refresh')
+router.register(r'', UserViewSet, basename='')
+
+auth_router = DefaultRouter()
+auth_router.register(r'', AuthUserViewSet, basename='my_profile')
+auth_router.register(r'users/login',LoginViewSet, basename='login')
+app_name = 'authentication'
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('update/<int:pk>/', UpdateViewSet, name='update-items'),
-    path('delete/<int:pk>/', DeleteViewSet, name='delete-items'),
+    path('user', UserRetrieveUpdateAPIView),
+    path('users/', include(router.urls)),
+    path('my_profile/', include(auth_router.urls)),
+    # path('users/login/', LoginViewSet),
 ]

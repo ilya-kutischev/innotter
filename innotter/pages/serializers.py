@@ -1,5 +1,7 @@
+
 from rest_framework import serializers
 from pages.models import Page
+from tags.models import Tag
 
 
 class PageDetailSerializer(serializers.ModelSerializer):
@@ -9,22 +11,28 @@ class PageDetailSerializer(serializers.ModelSerializer):
 
 
 class CreatePageSerializer(serializers.ModelSerializer):
+    tags = serializers.SlugRelatedField(
+        many=True,
+        queryset=Tag.objects.all(),
+        slug_field='name'
+    )
+
     class Meta:
         model = Page
         fields = (
             'name',
             'uuid',
             'description',
-            'followers',
+            # 'followers',
             'image',
             'is_private',
-            'follow_requests',
+            # 'follow_requests',
             'unblock_date',
+            'tags',
         )
 
     def create(self, validated_data):
         return Page.objects.create_page(**validated_data)
-
 
 class UpdatePageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -58,5 +66,33 @@ class BlockPageSerializer(serializers.ModelSerializer):
             'uuid',
             'unblock_date',
         )
+
     def update(self, validated_data):
         return Page.objects.delete_page(**validated_data)
+
+class ListFollowersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = (
+            'followers',
+        )
+
+
+class ListFollowRequestsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields = (
+            'follow_requests',
+        )
+
+
+class AllowFollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Page
+        fields=(
+            'followers',
+            'follow_requests',
+        )
+
+    def update(self, validated_data):
+        return Page.objects.apply_all_follow_requests(**validated_data)
