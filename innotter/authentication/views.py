@@ -30,7 +30,7 @@ class UserViewSet(ViewSet):
         return Response(serializer.data)
 
 
-class LoginAPIView(generics.GenericAPIView):
+class LoginViewSet(ViewSet):
     permission_classes = IsAuthenticated
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
@@ -38,7 +38,7 @@ class LoginAPIView(generics.GenericAPIView):
     def post(self, request):
         user = request.data.get('user', {})
 
-        serializer = self.serializer_class(data=user)
+        serializer = LoginSerializer(data=user)
         serializer.is_valid(raise_exception=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -1,9 +1,7 @@
-from os.path import basename
-
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from posts.views import (
-    CreatePostApi,
+    CreatePostViewSet,
     PostsViewSet,
     MyPostsViewSet,
     UpdatePostViewSet,
@@ -11,7 +9,7 @@ from posts.views import (
 )
 
 router = DefaultRouter()
-router.register(r'create', CreatePostApi, basename='create')
+router.register(r'create', CreatePostViewSet, basename='create')
 router.register(r'', PostsViewSet, basename='posts')
 router.register(r'my_posts', MyPostsViewSet, basename='my_posts')
 router.register(r'update', UpdatePostViewSet, basename='update')
