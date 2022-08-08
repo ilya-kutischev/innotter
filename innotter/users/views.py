@@ -1,3 +1,4 @@
+from rest_framework.decorators import action
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -6,6 +7,8 @@ from rest_framework.permissions import (
     IsAuthenticated,
     IsAdminUser,
 )
+
+from pages.models import Page
 from users.models import User
 from users.permissions import IsUserBlocked, IsUserActiveAndNotBlocked, IsUserActiveAndNotBlockedByToken, \
     IsOwnerByToken
@@ -16,30 +19,32 @@ from users.serializers import (
     DeleteSerializer,
     LoginSerializer,
     RefreshSerializer,
+    SendFollowRequestSerializer,
 )
 from rest_framework import status
+from authentication.backends import JWTAuthentication
 
 
 class UserViewSet(ViewSet):
     permission_classes = (IsAdminUser,)
+    authentication_classes = (JWTAuthentication,)
 
-    def list(self, request):
+    @action(detail=False, methods=['GET'], permission_classes=[IsAdminUser])
+    def list_all_users(self, request):
         queryset = User.objects.all()
         serializer = UserDetailSerializer(queryset, many=True)
+        res = Response(serializer.data)  # temp
         return Response(serializer.data)
 
-    def create(self, request):
+    @action(detail=False, methods=['POST'], permission_classes=[IsAdminUser])
+    def create_user_by_admin(self, request):
         serializer = UserDetailSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
-
-class RegisterViewSet(ViewSet):
-    serializer_class = RegisterSerializer
-    permission_classes = (AllowAny,)
-
-    def create(self, request, *args, **kwargs):
+    @action(detail=False, methods=['POST'], permission_classes=[AllowAny])
+    def register(self, request, *args, **kwargs):
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
@@ -50,12 +55,9 @@ class RegisterViewSet(ViewSet):
         user = User.objects.create_user(username, email, password)
         return Response(UserDetailSerializer(user).data)
 
-
-class UpdateViewSet(ViewSet):
-    serializer_class = UpdateSerializer
-    permission_classes = (IsUserActiveAndNotBlockedByToken, IsOwnerByToken | IsAdminUser,)
-
-    def update(self, request, pk, *args, **kwargs):
+    @action(detail=False, methods=['PUT'],
+            permission_classes=[IsUserActiveAndNotBlockedByToken, IsOwnerByToken | IsAdminUser])
+    def update_user(self, request, pk, *args, **kwargs):
         serializer = UpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
@@ -67,39 +69,43 @@ class UpdateViewSet(ViewSet):
         user = User.objects.update_user(user, username, email, password)
         return Response(UpdateSerializer(user).data)
 
-
-class DeleteViewSet(ViewSet):
-    serializer_class = DeleteSerializer
-    permission_classes = (IsAuthenticated, IsOwnerByToken | IsAdminUser)
-
-    def update(self, request, *args, **kwargs):
+    @action(detail=False, methods=['delete'], permission_classes=[IsAuthenticated, IsOwnerByToken | IsAdminUser])
+    def delete_user(self, request, *args, **kwargs):
         user = self.request.user
         user.is_active = False
         user.is_blocked = True
         user.save()
         return Response({"result": "user deleted"})
 
-
-class LoginView(ViewSet):
-    serializer_class = LoginSerializer
-    permission_classes = (IsUserActiveAndNotBlocked,)
-
-    def create(self, request):
+    @action(detail=False, methods=['post'], permission_classes=[IsUserActiveAndNotBlocked])
+    def login(self, request):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()
             return Response(response_data)
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class RefreshView(ViewSet):
-    serializer_class = RegisterSerializer
-    permission_classes = (IsUserActiveAndNotBlocked,)
-
-    def create(self, request):
+    @action(detail=False, methods=['post'], permission_classes=[IsUserActiveAndNotBlocked])
+    def refresh(self, request):
         serializer = RefreshSerializer(data=request.data)
         if serializer.is_valid():
             response_data = serializer.save()
             return Response(response_data)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendFollowRequestViewSet(ViewSet):
+    authentication_classes = (JWTAuthentication,)
+    serializer_class = SendFollowRequestSerializer
+    permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken)
+
+    def update(self, request, *args, **kwargs):
+        uuid = kwargs['pk']
+        page = get_object_or_404(Page, uuid=uuid)
+        follower = request.user
+        if page.is_private:
+            page = Page.objects.add_follow_request(page, follower)
+        else:
+            page = Page.objects.add_follower(page, follower)
+        return Response(SendFollowRequestSerializer(page).data)
