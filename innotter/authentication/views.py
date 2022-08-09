@@ -44,21 +44,21 @@ class LoginViewSet(ViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class UserRetrieveUpdateViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
 
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
     def retrieve(self, request, *args, **kwargs):
-        serializer = self.serializer_class(request.user)
+        serializer = UserSerializer(request.user)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         serializer_data = request.data.get('user', {})
 
-        serializer = self.serializer_class(
+        serializer = UserSerializer(
             request.user, data=serializer_data, partial=True
         )
         serializer.is_valid(raise_exception=True)

@@ -170,3 +170,14 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class SendFollowRequestSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'email', 'image_s3_path', 'role', 'title')
+
+
+    def update(self, validated_data):
+        return User.objects.update_user(**validated_data)
