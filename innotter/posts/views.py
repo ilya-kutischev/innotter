@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -19,29 +20,23 @@ from users.permissions import IsUserBlocked
 
 
 class PostsViewSet(ViewSet):
-    permission_classes = (IsAdminUser,)
+    authentication_classes = (JWTAuthentication,)
+    # permission_classes = (IsAdminUser,)
 
-    def list(self, request, *args, **kwargs):
+    @action(detail=False, methods=['GET'], permission_classes=[IsAdminUser])
+    def list_posts(self, request, *args, **kwargs):
         queryset = Post.objects.all()
         serializer = PostDetailSerializer(queryset, many=True)
         return Response(serializer.data)
 
-
-class MyPostsViewSet(ViewSet):
-    permission_classes = (IsAuthenticated, IsOwner, IsPageOwner, ~IsPageBlocked, ~IsUserBlocked)
-
-    def list(self, request, page, *args, **kwargs):
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated, IsOwner, IsPageOwner, ~IsPageBlocked, ~IsUserBlocked])
+    def list_my_posts(self, request, page, *args, **kwargs):
         queryset = Post.objects.filter(page=page)
         serializer = PostDetailSerializer(queryset, many=True)
         return Response(serializer.data)
 
-
-class CreatePostViewSet(ViewSet):
-    serializer_class = CreatePostSerializer
-    permission_classes = (~IsPageBlocked, ~IsUserBlocked, IsPageOwner | IsAdminUser,)
-    authentication_classes = (JWTAuthentication,)
-
-    def create(self, request, page, *args, **kwargs):
+    @action(detail=False, methods=['POST'], permission_classes=[~IsPageBlocked, ~IsUserBlocked, IsPageOwner | IsAdminUser,])
+    def create_post(self, request, page, *args, **kwargs):
         serializer = CreatePostSerializer(data=request.data)
         serializer.is_valid(raise_exception=1)
         reply_to = request.user
@@ -54,13 +49,8 @@ class CreatePostViewSet(ViewSet):
         post = Post.objects.create_post(content, page, reply_to)
         return Response(CreatePostSerializer(post).data)
 
-
-class UpdatePostViewSet(ViewSet):
-    authentication_classes = (JWTAuthentication,)
-    serializer_class = UpdatePostSerializer
-    permission_classes = (IsAuthenticated, IsOwner, ~IsPageBlocked, ~IsUserBlocked,)
-
-    def update(self, request, *args, **kwargs):
+    @action(detail=True, methods=['PUT'], permission_classes=[IsAuthenticated, IsOwner, ~IsPageBlocked, ~IsUserBlocked])
+    def update_post(self, request, *args, **kwargs):
         serializer = UpdatePostSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -70,13 +60,28 @@ class UpdatePostViewSet(ViewSet):
         post = Post.objects.update_post(post, content)
         return Response(UpdatePostSerializer(post).data)
 
-
-class DeletePostViewSet(ViewSet):
-    authentication_classes = (JWTAuthentication,)
-    serializer_class = UpdatePostSerializer
-    permission_classes = (IsOwner, IsAuthenticated, ~IsPageBlocked, ~IsUserBlocked | IsAdminUser,)
-
-    def destroy(self, *args, **kwargs):
+    @action(detail=True, methods=['delete'], permission_classes=[IsOwner, IsAuthenticated, ~IsPageBlocked, ~IsUserBlocked | IsAdminUser])
+    def delete_post(self, *args, **kwargs):
         post = get_object_or_404(Post, id=kwargs["pk"])
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, ~IsPageBlocked, ~IsUserBlocked | IsAdminUser])
+    def like_post(self,request, *args, **kwargs):
+
+        post = get_object_or_404(Post, id=kwargs["pk"])
+        liker=request.user
+        Post.objects.add_like(post, liker)
+
+        serializer = PostDetailSerializer(post, many=False)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, ~IsPageBlocked, ~IsUserBlocked | IsAdminUser])
+    def unlike_post(self,request, *args, **kwargs):
+
+        post = get_object_or_404(Post, id=kwargs["pk"])
+        liker=request.user
+        Post.objects.remove_like(post, liker)
+
+        serializer = PostDetailSerializer(post, many=False)
+        return Response(serializer.data)

@@ -98,7 +98,7 @@ class PageViewSet(ViewSet):
         page = Page.objects.update_page(page, name, description, image, is_private)
         return Response(UpdatePageSerializer(page).data)
 
-    @action(detail=False, methods=['delete'],
+    @action(detail=True, methods=['delete'],
             permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner])
     def delete_page(self, request, *args, **kwargs):
         page = get_object_or_404(Page, uuid=kwargs['pk'])
@@ -117,36 +117,31 @@ class PageViewSet(ViewSet):
         return Response(UpdatePageSerializer(page).data)
 
 
-# Followers mechanic realisation
 class FollowersViewSet(ViewSet):
     authentication_classes = (JWTAuthentication,)
     serializer_class = ListFollowersSerializer
-    permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner,)
+    # permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner,)
 
-    def list(self, request, uuid):
+    @action(detail=True, methods=['get'],
+            permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
+    def list_followers(self, request, uuid):
         page = get_object_or_404(Page, uuid=uuid)
         return Response(ListFollowersSerializer(page).data)
 
-
-class FollowRequestViewSet(ViewSet):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner,)
-    serializer_class = ListFollowRequestsSerializer
-
-    def list(self, request, uuid):
+    @action(detail=True, methods=['get'],
+            permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
+    def list_follow_requests(self, request, uuid):
         page = get_object_or_404(Page, uuid=uuid)
         return Response(ListFollowRequestsSerializer(page).data)
 
-
-class ApplyAllFollowRequestsViewSet(ViewSet):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner,)
-    serializer_class = AllowFollowSerializer
-
-    @action(detail=False, methods=['PUT'])
+    @action(detail=False, methods=['PUT'],
+            permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
     def accept_fr(self, request, uuid):
         serializer = AllowFollowSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         page = get_object_or_404(Page, uuid=uuid)
         page.objects.apply_all_follow_requests()
         return Response(status=status.HTTP_200_OK)
+
+
+
