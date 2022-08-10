@@ -124,22 +124,22 @@ class FollowersViewSet(ViewSet):
 
     @action(detail=True, methods=['get'],
             permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
-    def list_followers(self, request, uuid):
-        page = get_object_or_404(Page, uuid=uuid)
+    def list_followers(self, request, *args, **kwargs):
+        page = get_object_or_404(Page, uuid=kwargs['pk'])
         return Response(ListFollowersSerializer(page).data)
 
     @action(detail=True, methods=['get'],
             permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
-    def list_follow_requests(self, request, uuid):
-        page = get_object_or_404(Page, uuid=uuid)
+    def list_follow_requests(self, request, *args, **kwargs):
+        page = get_object_or_404(Page, uuid=kwargs['pk'])
         return Response(ListFollowRequestsSerializer(page).data)
 
     @action(detail=False, methods=['PUT'],
             permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken, IsOwner, ])
-    def accept_fr(self, request, uuid):
+    def accept_fr(self, request, *args, **kwargs):
         serializer = AllowFollowSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        page = get_object_or_404(Page, uuid=uuid)
+        page = get_object_or_404(Page, uuid=kwargs['pk'])
         page.objects.apply_all_follow_requests()
         return Response(status=status.HTTP_200_OK)
 

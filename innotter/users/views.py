@@ -1,4 +1,5 @@
 from rest_framework.decorators import action
+from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -19,7 +20,7 @@ from users.serializers import (
     DeleteSerializer,
     LoginSerializer,
     RefreshSerializer,
-    SendFollowRequestSerializer,
+    # SendFollowRequestSerializer,
 )
 from rest_framework import status
 from authentication.backends import JWTAuthentication
@@ -95,12 +96,13 @@ class UserViewSet(ViewSet):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class SendFollowRequestViewSet(ViewSet):
+class FollowRequestViewSet(ViewSet):
     authentication_classes = (JWTAuthentication,)
-    serializer_class = SendFollowRequestSerializer
+    # serializer_class = SendFollowRequestSerializer
     permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken)
 
-    def update(self, request, *args, **kwargs):
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken])
+    def send_follow_request(self, request, *args, **kwargs):
         uuid = kwargs['pk']
         page = get_object_or_404(Page, uuid=uuid)
         follower = request.user
@@ -108,4 +110,13 @@ class SendFollowRequestViewSet(ViewSet):
             page = Page.objects.add_follow_request(page, follower)
         else:
             page = Page.objects.add_follower(page, follower)
-        return Response(SendFollowRequestSerializer(page).data)
+        return Response(status=HTTP_200_OK)
+
+    @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken])
+    def unfollow(self, request, *args, **kwargs):
+        uuid = kwargs['pk']
+        page = get_object_or_404(Page, uuid=uuid)
+        follower = request.user
+        Page.objects.remove_follow_request(page, follower)
+        Page.objects.remove_follower(page, follower)
+        return Response(status=HTTP_200_OK)
