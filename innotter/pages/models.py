@@ -50,22 +50,27 @@ class PageManager(BaseUserManager):
 
     def add_follower(self, page, follower):
         page.followers.add(follower)
+        page.save()
         return page
 
     def remove_follower(self, page, follower):
         page.followers.remove(follower)
+        page.save()
         return page
 
     def add_follow_request(self, page, follower):
         page.follow_requests.add(follower)
+        page.save()
         return page
 
     def remove_follow_request(self, page, follower):
         page.follow_requests.remove(follower)
+        page.save()
         return page
 
     def apply_all_follow_requests(self, page):
         page.followers += page.follow_requests
+        page.save()
         return page
 
 

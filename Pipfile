@@ -12,6 +12,7 @@ psycopg2-binary = "*"
 djangorestframework = "*"
 pyjwt = "*"
 redis = "*"
+celery = "*"
 
 [dev-packages]
 

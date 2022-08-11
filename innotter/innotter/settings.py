@@ -14,9 +14,21 @@ DEBUG = int(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
-CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+# CELERY_BROKER_URL = "amqps://user:password@host:port/host"
+CELERY_BROKER_URL = "amqp://localhost"
 
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+
+# RECIPIENTS_EMAIL = ['kutischev10@gmail.com']
+# DEFAULT_FROM_EMAIL = 'innotter@gmail.com'
+
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = "innotter@gmail.com"
+EMAIL_HOST_PASSWORD = "zzweoffxzfldweoe"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -58,6 +70,7 @@ INSTALLED_APPS = [
     "authentication",
     "posts",
     "tags",
+
 
 ]
 

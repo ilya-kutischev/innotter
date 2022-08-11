@@ -10,21 +10,29 @@ from celery import Celery
 
 # this code copied from manage.py
 # set the default Django settings module for the 'celery' app.
+from django.core.mail import send_mail
+
 from innotter import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'innotter.settings')
 
-# you change change the name here
-app = Celery("django_celery_example")
+app = Celery("innotter")
 
-# read config from Django settings, the CELERY namespace would make celery
-# config keys has `CELERY` prefix
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# load tasks.py in django apps
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
 @app.task
-def add(x, y):
-    return x / y
+def post_created_task(content, page, reply_to):
+    recipient_list = page.followers.values('email')
+    recipient_list = [email['email'] for email in recipient_list]
+    res = send_mail(
+        subject=f'{page.name} posted new post! Check it!',
+        message=content,
+        from_email='innotter@gmail.com',
+        recipient_list=recipient_list,
+        fail_silently=False,
+    )
+
+    return print(f"Email sent to {res} members")
