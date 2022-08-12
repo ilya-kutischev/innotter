@@ -1,30 +1,28 @@
 """
 Celery config file
-
-https://docs.celeryproject.org/en/stable/django/first-steps-with-django.html
-
 """
 from __future__ import absolute_import
 import os
-from celery import Celery
-
-# this code copied from manage.py
-# set the default Django settings module for the 'celery' app.
+from time import sleep
+from celery import Celery, shared_task
 from django.core.mail import send_mail
 
-from innotter import settings
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'innotter.settings')
-
 app = Celery("innotter")
-
 app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
 
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+# @app.task
+@shared_task
+def post_created_task(content, page_uuid, reply_to_id):
+    from pages.models import Page
+    from users.models import User
 
-@app.task
-def post_created_task(content, page, reply_to):
+    page = Page.objects.get(uuid=page_uuid)
+
+    reply_to = User.objects.get(id=reply_to_id)
+
     recipient_list = page.followers.values('email')
     recipient_list = [email['email'] for email in recipient_list]
     res = send_mail(
@@ -34,5 +32,6 @@ def post_created_task(content, page, reply_to):
         recipient_list=recipient_list,
         fail_silently=False,
     )
-
-    return print(f"Email sent to {res} members")
+    sleep(1)
+    print(f"Email sent to {res} members")
+    return 0

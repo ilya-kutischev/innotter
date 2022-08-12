@@ -11,16 +11,14 @@ from rest_framework.permissions import (
 
 from pages.models import Page
 from users.models import User
-from users.permissions import IsUserBlocked, IsUserActiveAndNotBlocked, IsUserActiveAndNotBlockedByToken, \
+from users.permissions import IsUserActiveAndNotBlocked, IsUserActiveAndNotBlockedByToken, \
     IsOwnerByToken
 from users.serializers import (
     UserDetailSerializer,
     RegisterSerializer,
     UpdateSerializer,
-    DeleteSerializer,
     LoginSerializer,
     RefreshSerializer,
-    # SendFollowRequestSerializer,
 )
 from rest_framework import status
 from authentication.backends import JWTAuthentication
@@ -34,7 +32,6 @@ class UserViewSet(ViewSet):
     def list_all_users(self, request):
         queryset = User.objects.all()
         serializer = UserDetailSerializer(queryset, many=True)
-        res = Response(serializer.data)  # temp
         return Response(serializer.data)
 
     @action(detail=False, methods=['POST'], permission_classes=[IsAdminUser])
@@ -98,7 +95,6 @@ class UserViewSet(ViewSet):
 
 class FollowRequestViewSet(ViewSet):
     authentication_classes = (JWTAuthentication,)
-    # serializer_class = SendFollowRequestSerializer
     permission_classes = (IsAuthenticated, IsUserActiveAndNotBlockedByToken)
 
     @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken])
@@ -107,9 +103,9 @@ class FollowRequestViewSet(ViewSet):
         page = get_object_or_404(Page, uuid=uuid)
         follower = request.user
         if page.is_private:
-            page = Page.objects.add_follow_request(page, follower)
+            Page.objects.add_follow_request(page, follower)
         else:
-            page = Page.objects.add_follower(page, follower)
+            Page.objects.add_follower(page, follower)
         return Response(status=HTTP_200_OK)
 
     @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken])

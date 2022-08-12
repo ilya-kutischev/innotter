@@ -11,9 +11,13 @@ services:
       - ./.env
     depends_on:
       - db
+#      - rabbit
+#      - redis
+#      - worker
 
 
   db:
+    restart: always
     ports:
       - "5432:5432"
     image: postgres:12.0-alpine
@@ -23,6 +27,7 @@ services:
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
 
       # Redis
@@ -46,7 +51,7 @@ services:
       build:
           context: .
           dockerfile: Dockerfile
-      command: app/run_celery.sh
+      command: ./run_celery.sh
       env_file:
         - ./.env
       links:

@@ -21,7 +21,6 @@ from users.permissions import IsUserBlocked
 
 class PostsViewSet(ViewSet):
     authentication_classes = (JWTAuthentication,)
-    # permission_classes = (IsAdminUser,)
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAdminUser])
     def list_posts(self, request, *args, **kwargs):

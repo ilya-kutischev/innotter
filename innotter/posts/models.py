@@ -1,13 +1,8 @@
 from datetime import datetime
-
-from django.core.mail import send_mail
 from django.db import models
-from django.http import HttpResponse
-
 from innotter.celery import post_created_task
 from pages.models import Page
 from users.models import User
-from posts.tasks import post_created
 
 
 class Tag(models.Model):
@@ -26,24 +21,10 @@ class PostManager(models.Manager):
         )
         post.save()
 
-        #уведомление о новой записи по емаилу
-        post_created_task(content, page, reply_to)
-
+        # notification
+        # post_created_task.apply_async(content, page.uuid, reply_to.id)
+        post_created_task.apply_async(args=[content, page.uuid, reply_to.id])
         return post
-
-    # def send_mail(self, content, page, reply_to):
-    #     recipient_list = page.followers.values('email')
-    #     recipient_list = [email['email'] for email in recipient_list]
-    #     res = send_mail(
-    #         subject=f'{page.name} posted new post! Check it!',
-    #         message=content,
-    #         from_email='innotter@gmail.com',
-    #         recipient_list = recipient_list,
-    #         fail_silently=False,
-    #     )
-    #
-    #     return print(f"Email sent to {res} members")
-
 
     def update_post(self, post, content):
         post.content = content

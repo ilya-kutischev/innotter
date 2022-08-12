@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -14,8 +13,12 @@ DEBUG = int(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
-# CELERY_BROKER_URL = "amqps://user:password@host:port/host"
-CELERY_BROKER_URL = "amqp://localhost"
+RABBITMQ_DEFAULT_USER="admin"
+RABBITMQ_DEFAULT_PASS="admin"
+RABBITMQ_HOST="rabbit"
+RABBITMQ_PORT="5672"
+
+CELERY_BROKER_URL = f"amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
 
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
 
@@ -43,17 +46,11 @@ REST_FRAMEWORK = {
 }
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'django.contrib.auth.backends.ModelBackend',
-#     'users.backends.UserBackend',
-# ]
-
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=6),
 }
-
 
 
 INSTALLED_APPS = [

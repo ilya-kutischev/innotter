@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from pages.models import Page
 from tags.models import Tag
@@ -33,6 +32,7 @@ class CreatePageSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Page.objects.create_page(**validated_data)
+
 
 class UpdatePageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -69,6 +69,7 @@ class BlockPageSerializer(serializers.ModelSerializer):
 
     def update(self, validated_data):
         return Page.objects.delete_page(**validated_data)
+
 
 class ListFollowersSerializer(serializers.ModelSerializer):
     class Meta:

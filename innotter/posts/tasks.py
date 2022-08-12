@@ -1,6 +1,7 @@
 from celery import shared_task
 from django.core.mail import send_mail
 
+
 @shared_task
 def post_created(content, page, reply_to):
     recipient_list = page.followers.values('email')

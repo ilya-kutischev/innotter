@@ -15,8 +15,6 @@ auth_router.register(r'users/login',LoginViewSet, basename='login')
 app_name = 'authentication'
 
 urlpatterns = [
-    # path('user', UserRetrieveUpdateViewSet),
     path('users/', include(router.urls)),
     path('my_profile/', include(auth_router.urls)),
-    # path('users/login/', LoginViewSet),
 ]
