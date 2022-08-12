@@ -25,5 +25,6 @@ class UpdatePostSerializer(serializers.ModelSerializer):
         fields =(
             "content",
         )
+
     def update(self, validated_data):
         return Post.objects.update_post(**validated_data)
