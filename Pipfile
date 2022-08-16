@@ -12,7 +12,16 @@ psycopg2-binary = "*"
 djangorestframework = "*"
 pyjwt = "*"
 redis = "*"
-celery = "*"
+boto3 = "*"
+django-ses = "*"
+django-ses-email-backend = "*"
+fastapi = {extras = ["all"], version = "*"}
+rabbitmq = "*"
+celery = "==5.2.7"
+prompt-toolkit = "*"
+kombu = "==5.2.4"
+amqp = "==5.1.1"
+vine = "==5.0.0"
 
 [dev-packages]
 

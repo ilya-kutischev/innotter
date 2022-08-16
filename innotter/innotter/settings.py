@@ -15,10 +15,11 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
 RABBITMQ_DEFAULT_USER="admin"
 RABBITMQ_DEFAULT_PASS="admin"
-RABBITMQ_HOST="rabbit"
+RABBITMQ_HOST="rabbitmq"
 RABBITMQ_PORT="5672"
 
-CELERY_BROKER_URL = f"amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
+CELERY_BROKER_URL = f"amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}"
+# CELERY_BROKER_URL="amqp://admin:admin@rabbitmq:5672/"
 
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
 
@@ -31,7 +32,11 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = "innotter@gmail.com"
 EMAIL_HOST_PASSWORD = "zzweoffxzfldweoe"
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+AWS_ACCESS_KEY_ID = 'YOUR-ACCESS-KEY-ID'
+AWS_SECRET_ACCESS_KEY = 'YOUR-SECRET-ACCESS-KEY'
+
+EMAIL_BACKEND = 'django_ses.SESBackend'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -67,6 +72,8 @@ INSTALLED_APPS = [
     "authentication",
     "posts",
     "tags",
+
+
 
 
 ]

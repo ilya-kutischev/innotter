@@ -2,7 +2,6 @@ version: '3.7'
 services:
   web:
     build: .
-    command: python manage.py runserver 127.0.0.1:8000
     volumes:
       - ./innotter:/app
     ports:
@@ -19,10 +18,11 @@ services:
   db:
     restart: always
     ports:
-      - "5432:5432"
+      - 5432:5432
     image: postgres:12.0-alpine
     volumes:
-      - "/var/lib/postgresql/data/"
+      - postgres_data:/var/lib/postgresql/data/
+
     environment:
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
@@ -36,14 +36,15 @@ services:
     hostname: redis
 
   # RabbitMQ
-  rabbit:
-    hostname: rabbit
+  rabbitmq:
+    hostname: rabbitmq
     image: rabbitmq:3.9.13
+    restart: always
     env_file:
       - ./.env
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - 5672:5672
+      - 15672:15672
 
 
    # Celery worker
@@ -52,12 +53,29 @@ services:
           context: .
           dockerfile: Dockerfile
       command: ./run_celery.sh
+
       env_file:
         - ./.env
       links:
           - db
-          - rabbit
+          - rabbitmq
           - redis
       depends_on:
-          - rabbit
+          - rabbitmq
           - db
+
+
+  localstack:
+    container_name: localstack
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=ses
+    image: localstack/localstack:latest
+    ports:
+      - 4566:4566
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  postgres_data:
