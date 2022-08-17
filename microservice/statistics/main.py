@@ -1,11 +1,16 @@
 from fastapi import FastAPI
-import uvicorn
 app = FastAPI()
 
+from db import initialize_db, generate_table
+
+
 @app.get("/")
-async def root():
+def root():
+    ddb = generate_table()
+    print(ddb)
     return {"message": "Hello World"}
 
+
 @app.get("/items/{item_id}")
-async def read_item(item_id: int):
+def read_item(item_id: int):
     return {"item_id": item_id}

@@ -2,20 +2,20 @@ version: '3.7'
 services:
   stats:
     build: .
-
     volumes:
       - ./statistics:/app
     ports:
-      - 8000:8000
-
+      - 8001:8001
     depends_on:
-      - db
+      - dynamodb
 
   dynamodb:
     image: amazon/dynamodb-local
     container_name: my-dynamodb-data
     hostname: dynamodb
     restart: always
+    environment:
+      - DYNAMO_ENDPOINT=http://localhost:443
     volumes:
       - ./my-dynamodb-data:/home/dynamodblocal/data
     ports:

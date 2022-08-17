@@ -11,8 +11,11 @@ RUN python -m pip install --upgrade pip
 RUN pip install pipenv && pipenv install --dev --system --deploy
 
 WORKDIR /app
-COPY ./statistics .
+COPY ./ .
 
-EXPOSE 8000
+ENV PORT 8001
+ENV HOST "0.0.0.0"
 
-CMD ["entry.sh"]
+EXPOSE 8001
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
