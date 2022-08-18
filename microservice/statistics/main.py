@@ -1,16 +1,9 @@
 from fastapi import FastAPI
+from .db import create_tables, ddb
+from .routers import routes_user
+
 app = FastAPI()
 
-from db import initialize_db, generate_table
+app.include_router(routes_user, prefix='')
 
-
-@app.get("/")
-def root():
-    ddb = generate_table()
-    print(ddb)
-    return {"message": "Hello World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int):
-    return {"item_id": item_id}
+create_tables()

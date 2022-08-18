@@ -1,39 +1,71 @@
 import boto3
-from boto3.resources.base import ServiceResource
+from boto3 import resource
+from os import getenv
 
 
 class Config:
-    DB_REGION_NAME = "sus"
-    DB_ACCESS_KEY_ID = "sus"
-    DB_SECRET_ACCESS_KEY = "sys"
+    # DB_REGION_NAME = getenv("DB_REGION_NAME")
+    # DB_ACCESS_KEY_ID = getenv("DB_ACCESS_KEY_ID")
+    # DB_SECRET_ACCESS_KEY = getenv("DB_SECRET_ACCESS_KEY")
 
+    DB_REGION_NAME = "us-west-2"
+    DB_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
+    DB_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
-def initialize_db() -> ServiceResource:
-    ddb = boto3.resource('dynamodb',
-                         endpoint_url='http://localhost:8001',
+def initialize_db():
+    ddb = resource(
+                        'dynamodb',
+                         endpoint_url='http://localhost:8000',
                          region_name=Config.DB_REGION_NAME,
                          aws_access_key_id=Config.DB_ACCESS_KEY_ID,
-                         aws_secret_access_key=Config.DB_SECRET_ACCESS_KEY)
+                         aws_secret_access_key=Config.DB_SECRET_ACCESS_KEY
+                         )
 
     return ddb
 
+ddb = initialize_db()
 
-def generate_table():
-    ddb = initialize_db()
-    ddb.create_table(
-        TableName='Statistics',
-        AttributeDefinitions=[
+
+tables = [
+    {
+    "TableName": "statistics",
+    "KeySchema" : [
             {
-                'AttributeName': 'id',  # In this case, I only specified uid as partition key (there is no sort key)
-                'AttributeType': 'N'  # with type string
-            }
-        ],
-        KeySchema=[
-            {
-                'AttributeName': 'id',  # attribute uid serves as partition key
+                'AttributeName': 'id',
                 'KeyType': 'HASH'
+            },
+            {
+                'AttributeName': 'likes',
+                'KeyType': 'RANGE'
+            }
+    ],
+    "AttributeDefinitions":[
+            {
+                'AttributeName': 'id',
+                'AttributeType': 'N'
+            },
+            {
+                'AttributeName': 'likes',
+                'AttributeType': 'N'
             }
         ],
+    "ProvisionedThroughput" : {  # specying read and write capacity units
+        'ReadCapacityUnits': 10,  # these two values really depend on the app's traffic
+        'WriteCapacityUnits': 10
+}
+    }
+]
 
-    )
-    print('Successfully created table Statistics')
+
+def create_tables(ddb=ddb):
+    try:
+        for table in tables:
+            ddb.create_table(
+                TableName=table["TableName"],
+                KeySchema=table["KeySchema"],
+                AttributeDefinitions=table["AttributeDefinitions"],
+                ProvisionedThroughput=table["ProvisionedThroughput"],
+                # BillingMode='PAY_PER_REQUEST'
+            )
+    except Exception as e:
+        print(e)

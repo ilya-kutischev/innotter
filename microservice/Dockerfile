@@ -7,15 +7,17 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 COPY Pipfile Pipfile.lock ./
-RUN python -m pip install --upgrade pip
-RUN pip install pipenv && pipenv install --dev --system --deploy
+RUN python3 -m pip install --upgrade pip
+RUN pip install pipenv
+RUN pipenv install --dev --system
 
 WORKDIR /app
 COPY ./ .
 
-ENV PORT 8001
+ENV PORT 8000
 ENV HOST "0.0.0.0"
 
-EXPOSE 8001
+#EXPOSE 8001
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD uvicorn statistics.main:app --reload --host 0.0.0.0 --port 8000
