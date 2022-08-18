@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from .models import Statistics
-from .user import (
+from models import Statistics
+from user import (
     create_user,
     get_user,
     get_users,

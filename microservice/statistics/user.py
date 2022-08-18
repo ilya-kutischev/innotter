@@ -1,5 +1,5 @@
 from botocore.exceptions import ClientError
-from .db import ddb
+from db import ddb
 from fastapi.responses import  JSONResponse
 from boto3.dynamodb.conditions import Key
 

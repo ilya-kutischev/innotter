@@ -12,10 +12,11 @@ class Config:
     DB_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
     DB_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 
+
 def initialize_db():
     ddb = resource(
                         'dynamodb',
-                         endpoint_url='http://localhost:8000',
+                         endpoint_url='http://dynamodb:8000',
                          region_name=Config.DB_REGION_NAME,
                          aws_access_key_id=Config.DB_ACCESS_KEY_ID,
                          aws_secret_access_key=Config.DB_SECRET_ACCESS_KEY
