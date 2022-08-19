@@ -10,4 +10,5 @@ innotter/posts/migrations
 innotter/pages/migrations
 innotter/migrations
 innotter/innotter/__pycache__
+*.pyc
 

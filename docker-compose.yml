@@ -11,10 +11,13 @@ services:
       - ./.env
     depends_on:
       - db
-
+#      - rabbit
+#      - redis
+#      - worker
 
 
   db:
+    restart: always
     ports:
       - "5432:5432"
     image: postgres:12.0-alpine
@@ -24,4 +27,37 @@ services:
       - POSTGRES_USER=hello_django
       - POSTGRES_PASSWORD=hello_django
       - POSTGRES_DB=hello_django_dev
+      - POSTGRES_HOST_AUTH_METHOD=trust
 
+
+      # Redis
+  redis:
+    image: redis:6.0.16
+    hostname: redis
+
+  # RabbitMQ
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.9.13
+    env_file:
+      - ./.env
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+
+   # Celery worker
+  worker:
+      build:
+          context: .
+          dockerfile: Dockerfile
+      command: ./run_celery.sh
+      env_file:
+        - ./.env
+      links:
+          - db
+          - rabbit
+          - redis
+      depends_on:
+          - rabbit
+          - db

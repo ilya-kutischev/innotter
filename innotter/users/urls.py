@@ -1,22 +1,19 @@
 from django.urls import path, include
-from users.views import (
-    UserViewSet,
-    RegisterViewSet,
-    UpdateViewSet,
-    DeleteViewSet,
-    LoginView,
-    RefreshView,
-)
+from prompt_toolkit.formatted_text.ansi import r
+
+from users.views import UserViewSet, FollowRequestViewSet
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='user')
-router.register(r'register', RegisterViewSet, basename='register')
-router.register(r'login', LoginView, basename='login')
-router.register(r'refresh', RefreshView, basename='refresh')
+router.register(r'', UserViewSet, basename='')
+router.register(r'', FollowRequestViewSet, basename=' follow_request')
+
+
+new_router = DefaultRouter()
+
+app_name = 'USER'
 
 urlpatterns = [
+
     path('', include(router.urls)),
-    path('update/<int:pk>/', UpdateViewSet, name='update-items'),
-    path('delete/<int:pk>/', DeleteViewSet, name='delete-items'),
 ]

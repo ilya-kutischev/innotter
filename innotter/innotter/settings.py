@@ -13,14 +13,32 @@ DEBUG = int(os.getenv('DEBUG'))
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
 
+RABBITMQ_DEFAULT_USER="admin"
+RABBITMQ_DEFAULT_PASS="admin"
+RABBITMQ_HOST="rabbit"
+RABBITMQ_PORT="5672"
+
+CELERY_BROKER_URL = f"amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}/"
+
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
+
+# RECIPIENTS_EMAIL = ['kutischev10@gmail.com']
+# DEFAULT_FROM_EMAIL = 'innotter@gmail.com'
+
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = "innotter@gmail.com"
+EMAIL_HOST_PASSWORD = "zzweoffxzfldweoe"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAdminUser',
     ),
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
         'authentication.backends.JWTAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -28,17 +46,11 @@ REST_FRAMEWORK = {
 }
 
 
-# AUTHENTICATION_BACKENDS = [
-#     'django.contrib.auth.backends.ModelBackend',
-#     'users.backends.UserBackend',
-# ]
-
 JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=3),
     'JWT_ALLOW_REFRESH': True,
     'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(days=6),
 }
-
 
 
 INSTALLED_APPS = [
@@ -54,6 +66,8 @@ INSTALLED_APPS = [
     "pages",
     "authentication",
     "posts",
+    "tags",
+
 
 ]
 
