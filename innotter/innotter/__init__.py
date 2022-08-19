@@ -1,4 +1,5 @@
 from __future__ import absolute_import, unicode_literals
-from .celery import app as celery
+from .celeryapp import app as celery
 
 __all__ = ('celery',)
+# celery = celery
