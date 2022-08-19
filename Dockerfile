@@ -15,6 +15,6 @@ COPY ./innotter .
 
 EXPOSE 8000
 
-CMD ["./entrypoint.sh"]
+CMD ["/app/entrypoint.sh"]
 
 # CLEARS ALL BOXES!   docker system prune

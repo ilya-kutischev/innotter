@@ -1,5 +1,7 @@
 from pathlib import Path
 import os
+
+from django.conf.global_settings import EMAIL_BACKEND
 from dotenv import load_dotenv
 import datetime
 
@@ -36,7 +38,8 @@ EMAIL_HOST_PASSWORD = "zzweoffxzfldweoe"
 AWS_ACCESS_KEY_ID = 'YOUR-ACCESS-KEY-ID'
 AWS_SECRET_ACCESS_KEY = 'YOUR-SECRET-ACCESS-KEY'
 
-EMAIL_BACKEND = 'django_ses.SESBackend'
+# EMAIL_BACKEND = 'django_ses.SESBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (

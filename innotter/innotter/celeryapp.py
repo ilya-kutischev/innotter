@@ -21,6 +21,8 @@ app.autodiscover_tasks()
 
 app.conf.task_queues = (
     Queue('post_created_task', Exchange('Emails'), routing_key='email_notifications'),
+    # queue for microservice
+    Queue('statistics', Exchange('Microservice'), routing_key='statistics'),
 )
 
 # AWS sending email
@@ -85,4 +87,23 @@ def post_created_task(content, page_uuid, reply_to_id):
     print(f"Email sent to {res} members")
     return 0
 
+
+@app.task(name="statistics", queue="statistics")
+def publish(method='', exchange='', queue='statistics', message='Hello World!'):
+    import pika
+    import json
+    #before start should create such user in rabbit
+    params = pika.URLParameters('amqp://test:test@rabbitmq:5672/')
+
+    connection = pika.BlockingConnection(params)
+    channel = connection.channel()
+    channel.exchange_declare(exchange=exchange, exchange_type='direct', durable=True)
+
+    channel.basic_qos(prefetch_count=1)
+
+    channel.queue_declare(queue=queue, durable=True)
+    properties = pika.BasicProperties(method)
+
+    channel.basic_publish(exchange=exchange, routing_key=queue, body=json.dumps(message), properties=properties)
+    print(f" [admin producer] Sent a message: \n `{message}`")
 
