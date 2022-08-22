@@ -7,10 +7,13 @@ from time import sleep
 from celery import Celery, shared_task
 # from celery.bin.control import inspect
 from kombu import Exchange, Queue
+import asyncio
+
 
 
 from django.core.mail import send_mail
 import boto3
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'innotter.settings')
 app = Celery("innotter", broker="amqp://admin:admin@rabbitmq:5672")
@@ -22,7 +25,7 @@ app.autodiscover_tasks()
 app.conf.task_queues = (
     Queue('post_created_task', Exchange('Emails'), routing_key='email_notifications'),
     # queue for microservice
-    Queue('statistics', Exchange('Microservice'), routing_key='statistics'),
+    # Queue('statistics', Exchange('Microservice'), routing_key='statistics'),
 )
 
 # AWS sending email
@@ -88,22 +91,49 @@ def post_created_task(content, page_uuid, reply_to_id):
     return 0
 
 
-@app.task(name="statistics", queue="statistics")
-def publish(method='', exchange='', queue='statistics', message='Hello World!'):
-    import pika
+async def publish(method='', exchange='Microservice', queue='statistics', message='Hello World!'):
+    import aio_pika
     import json
-    #before start should create such user in rabbit
-    params = pika.URLParameters('amqp://test:test@rabbitmq:5672/')
+    connection = await aio_pika.connect_robust(
+        "amqp://admin:admin@rabbitmq:5672/",
+    )
+    print("connection created")
+    async with connection:
+        routing_key = "statistics"
 
-    connection = pika.BlockingConnection(params)
-    channel = connection.channel()
-    channel.exchange_declare(exchange=exchange, exchange_type='direct', durable=True)
+        channel = await connection.channel()
+        print("channel created")
+        await channel.default_exchange.publish(
 
-    channel.basic_qos(prefetch_count=1)
+            aio_pika.Message(body=f"Hello {routing_key}".encode()),
+            routing_key=routing_key,
+        )
+        print("message published")
 
-    channel.queue_declare(queue=queue, durable=True)
-    properties = pika.BasicProperties(method)
-
-    channel.basic_publish(exchange=exchange, routing_key=queue, body=json.dumps(message), properties=properties)
-    print(f" [admin producer] Sent a message: \n `{message}`")
-
+#
+# def publish(method='', exchange='Microservice', queue='statistics', message='Hello World!'):
+#     import pika
+#     import json
+#     # before start should create such user in rabbit
+#     params = pika.URLParameters('amqp://admin:admin@rabbitmq:5672/')
+#
+#     connection = pika.BlockingConnection(params)
+#     channel = connection.channel()
+#     channel.exchange_declare(exchange=exchange, exchange_type='direct', durable=True)
+#
+#     # result = channel.queue_declare(queue='', exclusive=True)
+#     # queue_name = result.method.queue
+#
+#     channel.basic_qos(prefetch_count=1)
+#
+#     result = channel.queue_declare(queue=queue, exclusive=True, durable=True)
+#     queue_name = result.method.queue
+#     properties = pika.BasicProperties(content_type='application/json', content_encoding='utf-8', delivery_mode=pika.spec.PERSISTENT_DELIVERY_MODE)
+#
+#     channel.basic_publish(exchange=exchange,
+#                           routing_key=queue,
+#                           body=json.dumps(message),
+#                           properties=properties)
+#     print(f" [admin producer] Sent a message: \n `{message}`")
+#
+#     channel.close()

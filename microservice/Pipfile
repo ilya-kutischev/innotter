@@ -12,6 +12,7 @@ fastapi = "*"
 uvicorn = "*"
 boto3 = "*"
 pydantic = "*"
+aio-pika = "*"
 
 [requires]
 python_version = "3.10.4"

@@ -23,6 +23,8 @@ kombu = "==5.2.4"
 amqp = "==5.1.1"
 vine = "==5.0.0"
 pika = "*"
+aio-pika = "*"
+nest-asyncio = "*"
 
 [dev-packages]
 

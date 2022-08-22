@@ -32,14 +32,14 @@ services:
 
       # Redis
   redis:
-    image: redis:6.0.16
+    image: redis:latest
     hostname: redis
 
   # RabbitMQ
   rabbitmq:
     hostname: rabbitmq
 #    image: rabbitmq:3.9.13
-    image: rabbitmq:3.9.13-management-alpine
+    image: rabbitmq:3.10.7-management-alpine
     restart: always
     env_file:
       - ./.env

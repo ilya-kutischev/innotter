@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from django.db import models
 
@@ -27,7 +28,7 @@ class PostManager(models.Manager):
         # notification
         post_created_task.delay(content, page.uuid, reply_to.id)
 
-        publish.delay(exchange="Microservice")
+        asyncio.run(publish(exchange='Microservice'))
 
         return post
 
