@@ -84,6 +84,7 @@ services:
 
   # MICROSERVICE
   stats:
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile.microservice
@@ -93,6 +94,12 @@ services:
       - 5000:5000
     depends_on:
       - dynamodb
+      - web
+      - rabbitmq
+      - localstack
+      - worker
+      - redis
+      - db
 
   dynamodb:
     image: amazon/dynamodb-local

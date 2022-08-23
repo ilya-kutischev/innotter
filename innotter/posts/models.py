@@ -3,7 +3,8 @@ from datetime import datetime
 from django.db import models
 
 from innotter.aws import send_follow_email
-from innotter.celeryapp import post_created_task, publish
+from innotter.celeryapp import post_created_task
+from innotter.producer import publish, wait_response
 # from innotter.producer import publish
 from pages.models import Page
 from users.models import User
@@ -28,7 +29,8 @@ class PostManager(models.Manager):
         # notification
         post_created_task.delay(content, page.uuid, reply_to.id)
 
-        asyncio.run(publish(exchange='Microservice'))
+        asyncio.run(publish())
+        asyncio.run(wait_response())
 
         return post
 

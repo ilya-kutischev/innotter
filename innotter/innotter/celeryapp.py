@@ -91,24 +91,24 @@ def post_created_task(content, page_uuid, reply_to_id):
     return 0
 
 
-async def publish(method='', exchange='Microservice', queue='statistics', message='Hello World!'):
-    import aio_pika
-    import json
-    connection = await aio_pika.connect_robust(
-        "amqp://admin:admin@rabbitmq:5672/",
-    )
-    print("connection created")
-    async with connection:
-        routing_key = "statistics"
-
-        channel = await connection.channel()
-        print("channel created")
-        await channel.default_exchange.publish(
-
-            aio_pika.Message(body=f"Hello {routing_key}".encode()),
-            routing_key=routing_key,
-        )
-        print("message published")
+# async def publish(method='', exchange='Microservice', queue='statistics', message='Hello World!'):
+#     import aio_pika
+#     import json
+#     connection = await aio_pika.connect_robust(
+#         "amqp://admin:admin@rabbitmq:5672/",
+#     )
+#     print("connection created")
+#     async with connection:
+#         routing_key = "statistics"
+#
+#         channel = await connection.channel()
+#         print("channel created")
+#         await channel.default_exchange.publish(
+#
+#             aio_pika.Message(body=f"Hello {routing_key}".encode()),
+#             routing_key=routing_key,
+#         )
+#         print("message published")
 
 #
 # def publish(method='', exchange='Microservice', queue='statistics', message='Hello World!'):
