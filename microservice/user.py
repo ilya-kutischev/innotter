@@ -16,7 +16,7 @@ def create_user(user: dict):
 
 def get_user(id: str):
     try:
-        response = table.querry(
+        response = table.query(
             KeyConditionExpression = Key("id").eq(id)
         )
         return response["Items"]
@@ -28,7 +28,7 @@ def get_users():
     try:
         response = table.scan(
             Limit=100,
-            AttributesToGet=["id", "likes", "followers" ]
+            AttributesToGet=["id","posts", "likes", "followers", "follow_requests"]
         )
         return response["Items"]
     except ClientError as e:
@@ -49,16 +49,22 @@ def delete_user(user: dict):
 
 def update_user(user: dict):
     try:
+        print("now we are updating user ++++++++++++++++++++++++++++++++++++=")
+        print(user)
         response = table.update_item(
             Key={
                 "id": user["id"]
             },
-            UpdateExpression="SET likes = :likes, followers = :followers",
-            ExressionAttributeValues={
+            UpdateExpression="SET posts = :posts, likes = :likes, followers = :followers, follow_requests = :follow_requests",
+            ExpressionAttributeValues={
+                ":posts": user["posts"],
                 ":likes": user["likes"],
-                ":followers": user["followers"]
+                ":followers": user["followers"],
+                ":follow_requests": user["follow_requests"]
+
         }
         )
+        # ТУТ ошибка проверить поля бд или ExressionAttributeValues
         return response
     except ClientError as e:
         return JSONResponse(content=e.response["Error"], status_code=500)

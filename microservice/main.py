@@ -21,13 +21,14 @@ class StatApp(FastAPI):
 
     @classmethod
     def log_incoming_message(cls, message):
-        logger.info(f'Incoming message in Microservice app: {message}')
+        logger.info(f'{message}')
 
 
 app = StatApp()
 
 app.include_router(routes_user, prefix='')
 
+create_tables()
 
 @app.on_event('startup')
 async def startup():
@@ -37,12 +38,12 @@ async def startup():
     await task
 
 
-@app.get('/statistics')
-async def get_info_microservice():
-    logger.info('get_info_microservice method is called')
-    await app.pika_client.produce('Message from Core app')
+# @app.get('/statistics')
+# async def get_info_microservice():
+#     logger.info('get_info_microservice method is called')
+#     await app.pika_client.produce('')
+#
+#     return JSONResponse(content={'status': 'success'})
 
-    return JSONResponse(content={'status': 'success'})
 
 
-create_tables()

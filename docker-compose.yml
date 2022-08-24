@@ -40,7 +40,7 @@ services:
     hostname: rabbitmq
 #    image: rabbitmq:3.9.13
     image: rabbitmq:3.10.7-management-alpine
-    restart: always
+    restart: on-failure
     env_file:
       - ./.env
     ports:

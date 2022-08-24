@@ -34,19 +34,11 @@ tables = [
             {
                 'AttributeName': 'id',
                 'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'likes',
-                'KeyType': 'RANGE'
             }
     ],
     "AttributeDefinitions":[
             {
                 'AttributeName': 'id',
-                'AttributeType': 'N'
-            },
-            {
-                'AttributeName': 'likes',
                 'AttributeType': 'N'
             }
         ],

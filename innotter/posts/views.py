@@ -1,3 +1,5 @@
+import asyncio
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -46,6 +48,7 @@ class PostsViewSet(ViewSet):
         )
         page = Page.objects.get(uuid=page)
         post = Post.objects.create_post(content, page, reply_to)
+
         return Response(CreatePostSerializer(post).data)
 
     @action(detail=True, methods=['PUT'], permission_classes=[IsAuthenticated, IsOwner, ~IsPageBlocked, ~IsUserBlocked])
