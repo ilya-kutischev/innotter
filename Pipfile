@@ -25,6 +25,7 @@ vine = "==5.0.0"
 pika = "*"
 aio-pika = "*"
 nest-asyncio = "*"
+jose = "*"
 
 [dev-packages]
 
