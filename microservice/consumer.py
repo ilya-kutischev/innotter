@@ -70,91 +70,15 @@ class PikaClient:
         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
         if "posts" in list(message.keys()):
-            user["posts"] += 1
+            user["posts"] += message["posts"]
         if "likes" in list(message.keys()):
-            user["likes"] += 1
+            user["likes"] += message["likes"]
         if "followers" in list(message.keys()):
-            user["followers"] += 1
+            user["followers"] += message["followers"]
         if "follow_requests" in list(message.keys()):
-            user["follow_requests"] += 1
+            user["follow_requests"] += message["follow_requests"]
 
         print("WHATS DONE+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         print(user)
         print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
         update_user(user)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#def consume():
-#     print("entred function")
-#     # params = pika.URLParameters('amqp://admin:admin@localhost:5672/')
-#     connection = pika.BlockingConnection(params)
-#     channel = connection.channel()
-#     channel.exchange_declare(exchange='Microservice', exchange_type='direct', durable=True)
-#
-#     result = channel.queue_declare(queue='statistics',exclusive=True, durable=True)
-#     queue_name = result.method.queue
-#     print("STARTED CONSUMER")
-#
-#
-#     # RECIEVING MESSAGE AND ADDING TO DB
-#     def callback(ch, method, properties, body):
-#
-#         print('Received message from admin')
-#         data = json.loads(body)
-#         print(data)
-#
-#
-#         # if properties.content_type == 'product_created':
-#         #     serializer = ProductSerializer(data=data)
-#         #     if serializer.is_valid():
-#         #         serializer.save()
-#         #         print(f" Saved to database")
-#         # else:
-#         #     print(f" Not saved")
-#
-#     # channel.basic_qos(prefetch_count=1)
-#     channel.basic_consume(on_message_callback=callback, queue=queue_name, auto_ack=True)
-#
-#     try:
-#         print("Starting consumer")
-#         channel.start_consuming()
-#     except KeyboardInterrupt:
-#         channel.stop_consuming()
-#         connection.close()
-#         print("Stopping consumer")
-# # this deletes the queue
-# # channel.close()

@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.viewsets import ViewSet
@@ -8,6 +11,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 from authentication.backends import JWTAuthentication
+from innotter.producer import publish
 from pages.models import Page
 from pages.permissions import IsUserActiveAndNotBlockedByToken, IsOwner, IsModeratorUser
 from pages.serializers import (
@@ -140,7 +144,16 @@ class FollowersViewSet(ViewSet):
         serializer = AllowFollowSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         page = get_object_or_404(Page, uuid=kwargs['pk'])
+        count_fr = len(page.follow_requests)
         page.objects.apply_all_follow_requests()
+
+        message = {
+            "user": page.owner.id,
+            "followers": count_fr,
+            "follow_request": -1 * count_fr,
+        }
+        asyncio.run(publish(json.dumps(message)))
+
         return Response(status=status.HTTP_200_OK)
 
 

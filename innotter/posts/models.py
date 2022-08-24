@@ -29,11 +29,11 @@ class PostManager(models.Manager):
 
         # notification
         post_created_task.delay(content, page.uuid, reply_to.id)
-        message = {
-            "user": page.owner.id,
-            "posts": 1
-        }
-        asyncio.run(publish(json.dumps(message)))
+        # message = {
+        #     "user": page.owner.id,
+        #     "posts": 1
+        # }
+        # asyncio.run(publish(json.dumps(message)))
 
         return post
 

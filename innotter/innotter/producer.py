@@ -45,21 +45,8 @@ def log_incoming_message(cls, message):
     logger.info(f'{message}')
 
 
-# async def wait_response():
-#     print("waiting for response from microservice")
-#     pika_client = PikaClient(log_incoming_message)
-#     loop = asyncio.get_running_loop()
-#     task = loop.create_task(pika_client.consume(loop))
-#
-#     await task
-
-
 async def publish(message):
     logger.info('PUBLISH method is called')
     pika_client = PikaClient(log_incoming_message)
     await pika_client.produce(message)
     return JSONResponse(content={'status': 'success'})
-
-
-
-

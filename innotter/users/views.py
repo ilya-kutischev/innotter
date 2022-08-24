@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from rest_framework.decorators import action
 from rest_framework.status import HTTP_200_OK
 from rest_framework.viewsets import ViewSet
@@ -9,6 +12,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 
+from innotter.producer import publish
 from pages.models import Page
 from users.models import User
 from users.permissions import IsUserActiveAndNotBlocked, IsUserActiveAndNotBlockedByToken, \
@@ -104,8 +108,22 @@ class FollowRequestViewSet(ViewSet):
         follower = request.user
         if page.is_private:
             Page.objects.add_follow_request(page, follower)
+
+            message = {
+                "user": page.owner.id,
+                "follow_requests": 1
+            }
+            asyncio.run(publish(json.dumps(message)))
+
         else:
             Page.objects.add_follower(page, follower)
+
+            message = {
+                "user": page.owner.id,
+                "followers": 1
+            }
+            asyncio.run(publish(json.dumps(message)))
+
         return Response(status=HTTP_200_OK)
 
     @action(detail=True, methods=['put'], permission_classes=[IsAuthenticated, IsUserActiveAndNotBlockedByToken])
@@ -113,6 +131,9 @@ class FollowRequestViewSet(ViewSet):
         uuid = kwargs['pk']
         page = get_object_or_404(Page, uuid=uuid)
         follower = request.user
-        Page.objects.remove_follow_request(page, follower)
-        Page.objects.remove_follower(page, follower)
+        # возмжно это не работает?
+        if follower.id in page.follow_requests:
+            Page.objects.remove_follow_request(page, follower)
+        if follower.id in page.followers:
+            Page.objects.remove_follower(page, follower)
         return Response(status=HTTP_200_OK)
