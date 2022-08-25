@@ -1,5 +1,5 @@
 #!/bin/sh
 
-sleep 10
+sleep 5
 
-celery -A innotter worker -l info
+pipenv run celery -A innotter worker -l info
