@@ -1,12 +1,6 @@
-import asyncio
-import json
 from datetime import datetime
 from django.db import models
-
-from innotter.aws import send_follow_email
 from innotter.celeryapp import post_created_task
-from innotter.producer import publish
-# from innotter.producer import publish
 from pages.models import Page
 from users.models import User
 
@@ -27,14 +21,7 @@ class PostManager(models.Manager):
         )
         post.save()
 
-        # notification
         post_created_task.delay(content, page.uuid, reply_to.id)
-        # message = {
-        #     "user": page.owner.id,
-        #     "posts": 1
-        # }
-        # asyncio.run(publish(json.dumps(message)))
-
         return post
 
     def update_post(self, post, content):

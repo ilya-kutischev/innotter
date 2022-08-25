@@ -11,7 +11,7 @@ from user import (
 from authentication import get_current_user
 routes_user = APIRouter()
 
-#управление через запросы, надо доделать автоматическое редактирование бд по запросу к ней
+
 @routes_user.post("/create", response_model=Statistics)
 def create(user: Statistics):
     return create_user(user.dict())

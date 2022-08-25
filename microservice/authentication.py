@@ -1,13 +1,13 @@
 import os
-from typing import Union, Any
-from datetime import datetime
-from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
-
-ALGORITHM = "HS256"
-# JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY']
-JWT_SECRET_KEY = 'my_secret'
+from fastapi import HTTPException
+from dotenv import load_dotenv, find_dotenv
 import jwt
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'innotter.settings')
+
+load_dotenv(find_dotenv())
+ALGORITHM =os.environ['ALGORITHM']
+JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY']
 
 
 async def get_current_user(token: str):

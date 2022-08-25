@@ -49,8 +49,6 @@ def delete_user(user: dict):
 
 def update_user(user: dict):
     try:
-        print("now we are updating user ++++++++++++++++++++++++++++++++++++=")
-        print(user)
         response = table.update_item(
             Key={
                 "id": user["id"]
@@ -61,10 +59,8 @@ def update_user(user: dict):
                 ":likes": user["likes"],
                 ":followers": user["followers"],
                 ":follow_requests": user["follow_requests"]
-
-        }
+            }
         )
-        # ТУТ ошибка проверить поля бд или ExressionAttributeValues
         return response
     except ClientError as e:
         return JSONResponse(content=e.response["Error"], status_code=500)

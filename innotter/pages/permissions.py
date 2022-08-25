@@ -1,5 +1,4 @@
 from rest_framework import permissions
-from datetime import datetime
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):

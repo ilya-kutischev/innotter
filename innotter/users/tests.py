@@ -37,4 +37,3 @@ class AccountTests(APITestCase):
         response = self.client.get(url)
         print(response.data)
         self.assertTrue(response.data is not None)
-

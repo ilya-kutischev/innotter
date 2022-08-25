@@ -1,6 +1,4 @@
-import asyncio
 import logging
-import json
 import aio_pika
 from aio_pika import connect_robust, connect
 from starlette.responses import JSONResponse
