@@ -59,7 +59,7 @@ class UserViewSet(ViewSet):
 
     @action(detail=False, methods=['PUT'],
             permission_classes=[IsUserActiveAndNotBlockedByToken, IsOwnerByToken | IsAdminUser])
-    def update_user(self, request, pk, *args, **kwargs):
+    def update_user(self, request, *args, **kwargs):
         serializer = UpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username, email, password = (
@@ -67,7 +67,7 @@ class UserViewSet(ViewSet):
             serializer.validated_data["email"],
             serializer.validated_data["password"],
         )
-        user = get_object_or_404(User, pk=pk)
+        user = self.request.user
         user = User.objects.update_user(user, username, email, password)
         return Response(UpdateSerializer(user).data)
 
