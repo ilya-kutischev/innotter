@@ -19,12 +19,12 @@ def send_follow_email():
             "Body": {
                 "Text": {
                     "Charset": CHARSET,
-                    "Data": "Hello, world!",
+                    "Data": "Hello, see a new post!",
                 }
             },
             "Subject": {
                 "Charset": CHARSET,
-                "Data": "Amazing Email Tutorial",
+                "Data": "Visit your innotter page",
             },
         },
         Source="innotter@gmail.com",

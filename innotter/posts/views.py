@@ -1,3 +1,6 @@
+import asyncio
+import json
+
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -8,6 +11,7 @@ from rest_framework.permissions import (
     IsAdminUser,
 )
 from authentication.backends import JWTAuthentication
+from innotter.producer import publish
 from posts.permissions import IsOwner, IsPageOwner, IsPageBlocked
 from posts.serializers import (
     CreatePostSerializer,
@@ -46,6 +50,13 @@ class PostsViewSet(ViewSet):
         )
         page = Page.objects.get(uuid=page)
         post = Post.objects.create_post(content, page, reply_to)
+
+        message = {
+            "user": page.owner.id,
+            "posts": 1
+        }
+        asyncio.run(publish(json.dumps(message)))
+
         return Response(CreatePostSerializer(post).data)
 
     @action(detail=True, methods=['PUT'], permission_classes=[IsAuthenticated, IsOwner, ~IsPageBlocked, ~IsUserBlocked])
@@ -62,6 +73,14 @@ class PostsViewSet(ViewSet):
     @action(detail=True, methods=['delete'], permission_classes=[IsOwner, IsAuthenticated, ~IsPageBlocked, ~IsUserBlocked | IsAdminUser])
     def delete_post(self, *args, **kwargs):
         post = get_object_or_404(Post, id=kwargs["pk"])
+
+        message = {
+            "user": post.page.owner.id,
+            "posts": -1
+        }
+        asyncio.run(publish(json.dumps(message)))
+
+
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -72,6 +91,12 @@ class PostsViewSet(ViewSet):
         liker=request.user
         Post.objects.add_like(post, liker)
 
+        message = {
+            "user": post.page.owner.id,
+            "likes": 1
+        }
+        asyncio.run(publish(json.dumps(message)))
+
         serializer = PostDetailSerializer(post, many=False)
         return Response(serializer.data)
 
@@ -81,6 +106,12 @@ class PostsViewSet(ViewSet):
         post = get_object_or_404(Post, id=kwargs["pk"])
         liker=request.user
         Post.objects.remove_like(post, liker)
+
+        message = {
+            "user": post.page.owner.id,
+            "likes": -1
+        }
+        asyncio.run(publish(json.dumps(message)))
 
         serializer = PostDetailSerializer(post, many=False)
         return Response(serializer.data)

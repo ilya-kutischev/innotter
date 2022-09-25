@@ -1,7 +1,5 @@
 from pathlib import Path
 import os
-
-from django.conf.global_settings import EMAIL_BACKEND
 from dotenv import load_dotenv
 import datetime
 
@@ -21,12 +19,8 @@ RABBITMQ_HOST="rabbitmq"
 RABBITMQ_PORT="5672"
 
 CELERY_BROKER_URL = f"amqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@{RABBITMQ_HOST}:{RABBITMQ_PORT}"
-# CELERY_BROKER_URL="amqp://admin:admin@rabbitmq:5672/"
 
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379"
-
-# RECIPIENTS_EMAIL = ['kutischev10@gmail.com']
-# DEFAULT_FROM_EMAIL = 'innotter@gmail.com'
 
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
@@ -192,3 +186,4 @@ JWT_REFRESH_TTL = 3600 * 24 * 7* 1000 * 24 * 7
 
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False
+

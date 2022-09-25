@@ -1,4 +1,3 @@
-from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 from users.models import User
@@ -23,4 +22,3 @@ class PagesTests(APITestCase):
         url = '/pages/create_page/'
         response = self.client.post(url,self.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
